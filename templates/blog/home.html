@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore Stories & Articles - Chronicle{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Hero Header -->
+    <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="inline-block px-3 py-1 mb-3 text-xs font-semibold tracking-wider text-brand-700 uppercase bg-brand-50 border border-brand-200 rounded-full">
+            Open Publication Feed
+        </span>
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            Ideas, stories, and knowledge worth reading.
+        </h1>
+        <p class="mt-4 text-base sm:text-lg text-slate-600">
+            Anyone can freely explore and read articles from our community of writers. Sign in to write, like, and comment.
+        </p>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 mb-10">
+        <form method="GET" action="{% url 'blog:home' %}" class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-grow">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search articles by title, content, or author..." class="w-full pl-10 pr-4 py-2.5 text-sm text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <select name="sort" onchange="this.form.submit()" class="px-3.5 py-2.5 text-sm font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+                    <option value="latest" {% if sort == 'latest' %}selected{% endif %}>Latest Published</option>
+                    <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Most Liked</option>
+                    <option value="discussed" {% if sort == 'discussed' %}selected{% endif %}>Most Discussed</option>
+                    <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                </select>
+
+                <button type="submit" class="px-5 py-2.5 text-sm font-semibold bg-brand-600 text-white rounded-xl hover:bg-brand-700 shadow-sm transition">
+                    Search
+                </button>
+
+                {% if query or sort != 'latest' %}
+                    <a href="{% url 'blog:home' %}" class="px-3.5 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition" title="Clear filters">
+                        Clear
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Active Search Filter Indicator -->
+    {% if query %}
+        <div class="mb-6 flex items-center justify-between">
+            <p class="text-sm text-slate-600">
+                Showing results for <span class="font-bold text-slate-900">"{{ query }}"</span> ({{ total_count }} {{ total_count|pluralize:"post,posts" }} found)
+            </p>
+        </div>
+    {% endif %}
+
+    <!-- Posts Grid -->
+    {% if page_obj %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {% for post in page_obj %}
+                <article class="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 flex flex-col justify-between overflow-hidden group">
+                    <div class="p-6">
+                        <!-- Author Meta -->
+                        <div class="flex items-center justify-between mb-4">
+                            <a href="{% url 'blog:author_posts' post.author.username %}" class="flex items-center space-x-2.5 group/author">
+                                <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs uppercase group-hover/author:ring-2 group-hover/author:ring-brand-500 transition">
+                                    {{ post.author.username|slice:":2" }}
+                                </div>
+                                <span class="text-xs font-semibold text-slate-700 group-hover/author:text-brand-600 transition">
+                                    @{{ post.author.username }}
+                                </span>
+                            </a>
+                            <span class="text-xs text-slate-400 font-medium">
+                                {{ post.reading_time_minutes }} min read
+                            </span>
+                        </div>
+
+                        <!-- Post Title -->
+                        <h2 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition line-clamp-2 leading-snug">
+                            <a href="{{ post.get_absolute_url }}">
+                                {{ post.title }}
+                            </a>
+                        </h2>
+
+                        <!-- Excerpt -->
+                        <p class="mt-2.5 text-sm text-slate-600 line-clamp-3 leading-relaxed">
+                            {{ post.excerpt }}
+                        </p>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="px-6 py-4 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
+                        <div class="flex items-center space-x-4">
+                            <!-- Likes counter -->
+                            <span class="flex items-center space-x-1 text-slate-600">
+                                <svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                                <span>{{ post.likes.count }}</span>
+                            </span>
+
+                            <!-- Comments counter -->
+                            <span class="flex items-center space-x-1 text-slate-600">
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                <span>{{ post.comments.count }}</span>
+                            </span>
+                        </div>
+
+                        <a href="{{ post.get_absolute_url }}" class="inline-flex items-center space-x-1 font-semibold text-brand-600 hover:text-brand-700 transition">
+                            <span>Read article</span>
+                            <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="mt-12 flex justify-center">
+                <nav class="inline-flex rounded-xl shadow-sm bg-white border border-slate-200 p-1 space-x-1" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition">
+                            &larr; Previous
+                        </a>
+                    {% endif %}
+
+                    <span class="px-3.5 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition">
+                            Next &rarr;
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-white rounded-2xl border border-slate-200 text-center py-16 px-6 max-w-lg mx-auto">
+            <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">No published stories found</h3>
+            <p class="mt-1 text-sm text-slate-500">
+                {% if query %}
+                    No articles matched your search query "{{ query }}". Try searching for different keywords.
+                {% else %}
+                    Be the first writer to publish an insightful article on Chronicle!
+                {% endif %}
+            </p>
+            <div class="mt-6">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'blog:post_create' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 shadow-sm transition">
+                        Write a Blog Post
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:register' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 shadow-sm transition">
+                        Join &amp; Start Writing
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

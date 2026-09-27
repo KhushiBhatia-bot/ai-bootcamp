@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile Settings - Chronicle{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Profile Settings
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">
+            Update your public author profile, personal details, and bio.
+        </p>
+    </div>
+
+    <!-- Profile Form Card -->
+    <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-sm">
+        <form method="POST" novalidate class="space-y-6">
+            {% csrf_token %}
+
+            <div class="flex items-center space-x-4 pb-6 border-b border-slate-100">
+                <div class="w-16 h-16 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-2xl uppercase shadow-sm">
+                    {{ user.username|slice:":2" }}
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">{{ user.username }}</h2>
+                    <p class="text-xs text-slate-400">Member since {{ user.date_joined|date:"F Y" }}</p>
+                    <a href="{% url 'blog:author_posts' user.username %}" class="inline-block mt-1 text-xs font-semibold text-brand-600 hover:text-brand-700">
+                        View public author page &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="{{ u_form.first_name.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        First Name
+                    </label>
+                    {{ u_form.first_name }}
+                    {% if u_form.first_name.errors %}
+                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ u_form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ u_form.last_name.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Last Name
+                    </label>
+                    {{ u_form.last_name }}
+                    {% if u_form.last_name.errors %}
+                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ u_form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <label for="{{ u_form.email.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Email Address
+                </label>
+                {{ u_form.email }}
+                {% if u_form.email.errors %}
+                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ u_form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ p_form.bio.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Author Bio
+                </label>
+                {{ p_form.bio }}
+                <p class="mt-1 text-xs text-slate-400">
+                    A brief intro shown to readers on your articles and author profile.
+                </p>
+                {% if p_form.bio.errors %}
+                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ p_form.bio.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ p_form.avatar_url.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Avatar Image URL (Optional)
+                </label>
+                {{ p_form.avatar_url }}
+                {% if p_form.avatar_url.errors %}
+                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ p_form.avatar_url.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex justify-end space-x-3">
+                <a href="{% url 'blog:dashboard' %}" class="px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 transition">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 shadow-sm transition">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
