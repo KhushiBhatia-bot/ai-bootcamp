@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Story - Chronicle{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+                {% if action == 'Create' %}Write a New Story{% else %}Edit Story{% endif %}
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Share your expertise, ideas, and experiences with Markdown support.
+            </p>
+        </div>
+        <a href="{% url 'blog:dashboard' %}" class="text-sm font-semibold text-slate-500 hover:text-slate-800 transition">
+            Cancel &amp; return to Dashboard
+        </a>
+    </div>
+
+    <div class="flex gap-6 items-start">
+        <!-- ── Main Form ── -->
+        <div class="flex-1 min-w-0">
+            <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-sm">
+                <form method="POST" novalidate class="space-y-6" id="post-form">
+                    {% csrf_token %}
+
+                    <!-- Title -->
+                    <div>
+                        <label for="{{ form.title.id_for_label }}" class="block text-sm font-bold text-slate-800 mb-2">
+                            Title <span class="text-rose-500">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <p class="mt-1.5 text-xs text-rose-600 font-medium">{{ form.title.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Excerpt -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="{{ form.excerpt.id_for_label }}" class="block text-sm font-bold text-slate-800">
+                                Excerpt / Preview Summary
+                            </label>
+                            <button type="button" id="ai-summarize-btn"
+                                class="inline-flex items-center space-x-1.5 text-xs font-semibold text-violet-600 hover:text-violet-800 border border-violet-200 bg-violet-50 hover:bg-violet-100 px-2.5 py-1 rounded-lg transition"
+                                title="Generate excerpt with AI">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <span>AI Generate</span>
+                            </button>
+                        </div>
+                        {{ form.excerpt }}
+                        <p class="mt-1 text-xs text-slate-400">
+                            A short hook shown on feed cards. If left blank, it will be automatically extracted from your content.
+                        </p>
+                        {% if form.excerpt.errors %}
+                            <p class="mt-1.5 text-xs text-rose-600 font-medium">{{ form.excerpt.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Content -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="{{ form.content.id_for_label }}" class="block text-sm font-bold text-slate-800">
+                                Content (Markdown Supported) <span class="text-rose-500">*</span>
+                            </label>
+                            <span class="text-xs text-slate-400 font-mono">
+                                # Headings &bull; **bold** &bull; `code` &bull; > quote
+                            </span>
+                        </div>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <p class="mt-1.5 text-xs text-rose-600 font-medium">{{ form.content.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tags -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="{{ form.tags_input.id_for_label }}" class="block text-sm font-bold text-slate-800">
+                                Tags
+                            </label>
+                            <button type="button" id="ai-tags-btn"
+                                class="inline-flex items-center space-x-1.5 text-xs font-semibold text-violet-600 hover:text-violet-800 border border-violet-200 bg-violet-50 hover:bg-violet-100 px-2.5 py-1 rounded-lg transition"
+                                title="Suggest tags with AI">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <span>AI Suggest</span>
+                            </button>
+                        </div>
+                        {{ form.tags_input }}
+                        <p class="mt-1 text-xs text-slate-400">{{ form.tags_input.help_text }}</p>
+                        {% if form.tags_input.errors %}
+                            <p class="mt-1.5 text-xs text-rose-600 font-medium">{{ form.tags_input.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status / Submit -->
+                    <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="sm:max-w-xs w-full">
+                            <label for="{{ form.status.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                Publication Status
+                            </label>
+                            {{ form.status }}
+                        </div>
+
+                        <div class="flex items-center space-x-3 self-end sm:self-center pt-2">
+                            <a href="{% url 'blog:dashboard' %}" class="px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 transition">
+                                Cancel
+                            </a>
+                            <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 shadow-sm transition">
+                                {% if action == 'Create' %}Save &amp; Publish{% else %}Update Post{% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ── AI Writing Assistant Sidebar ── -->
+        <aside class="w-80 flex-shrink-0">
+            <div class="bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 rounded-3xl p-6 border border-violet-700/40 shadow-xl sticky top-6">
+                <!-- Header -->
+                <div class="flex items-center space-x-2.5 mb-5">
+                    <div class="w-8 h-8 rounded-xl bg-violet-500/30 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">AI Writing Assistant</h3>
+                        <p class="text-[11px] text-violet-300">Powered by Groq &bull; LLaMA 3.1</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-2.5 mb-5">
+                    <button type="button" data-ai-action="suggest_title"
+                        class="ai-action-btn w-full flex items-center space-x-2.5 px-4 py-3 rounded-xl bg-violet-800/50 hover:bg-violet-700/60 border border-violet-600/30 transition text-left">
+                        <svg class="w-4 h-4 text-violet-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                        <div>
+                            <p class="text-xs font-bold text-white">Suggest Titles</p>
+                            <p class="text-[10px] text-violet-400">Get 3 compelling title ideas</p>
+                        </div>
+                    </button>
+
+                    <button type="button" data-ai-action="summarize"
+                        class="ai-action-btn w-full flex items-center space-x-2.5 px-4 py-3 rounded-xl bg-violet-800/50 hover:bg-violet-700/60 border border-violet-600/30 transition text-left">
+                        <svg class="w-4 h-4 text-violet-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <div>
+                            <p class="text-xs font-bold text-white">Generate Excerpt</p>
+                            <p class="text-[10px] text-violet-400">Auto-write a compelling summary</p>
+                        </div>
+                    </button>
+
+                    <button type="button" data-ai-action="improve"
+                        class="ai-action-btn w-full flex items-center space-x-2.5 px-4 py-3 rounded-xl bg-violet-800/50 hover:bg-violet-700/60 border border-violet-600/30 transition text-left">
+                        <svg class="w-4 h-4 text-violet-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        <div>
+                            <p class="text-xs font-bold text-white">Improve Draft</p>
+                            <p class="text-[10px] text-violet-400">Refine clarity, tone &amp; flow</p>
+                        </div>
+                    </button>
+
+                    <button type="button" data-ai-action="suggest_tags"
+                        class="ai-action-btn w-full flex items-center space-x-2.5 px-4 py-3 rounded-xl bg-violet-800/50 hover:bg-violet-700/60 border border-violet-600/30 transition text-left">
+                        <svg class="w-4 h-4 text-violet-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                        <div>
+                            <p class="text-xs font-bold text-white">Suggest Tags</p>
+                            <p class="text-[10px] text-violet-400">Auto-detect relevant categories</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Result Area -->
+                <div id="ai-result-area" class="hidden">
+                    <div class="h-px bg-violet-700/40 mb-4"></div>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-[11px] font-bold text-violet-300 uppercase tracking-wider" id="ai-result-label">Result</p>
+                        <button type="button" id="ai-apply-btn" class="text-[11px] font-bold text-violet-200 hover:text-white bg-violet-600 hover:bg-violet-500 px-2.5 py-1 rounded-lg transition">
+                            Apply ↗
+                        </button>
+                    </div>
+                    <div id="ai-result-text"
+                        class="text-xs text-violet-100 leading-relaxed bg-violet-950/50 rounded-xl p-3 border border-violet-700/30 max-h-48 overflow-y-auto whitespace-pre-wrap">
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="ai-loading" class="hidden text-center py-4">
+                    <div class="inline-flex items-center space-x-2 text-violet-300">
+                        <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        <span class="text-xs">Thinking with Cortex...</span>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="ai-error" class="hidden mt-3 text-xs text-rose-300 bg-rose-900/30 rounded-xl p-3 border border-rose-700/30"></div>
+
+                <p class="mt-4 text-[10px] text-violet-500 text-center">
+                    Groq Cloud &bull; LLaMA 3.1 70B
+                </p>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const aiAssistUrl = "{% url 'blog:ai_assist' %}";
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    let currentAction = null;
+
+    // ── Sidebar action buttons ──
+    document.querySelectorAll('.ai-action-btn').forEach(btn => {
+        btn.addEventListener('click', () => callAI(btn.dataset.aiAction));
+    });
+
+    // ── Inline quick buttons ──
+    const summarizeBtn = document.getElementById('ai-summarize-btn');
+    const tagsBtn = document.getElementById('ai-tags-btn');
+    if (summarizeBtn) summarizeBtn.addEventListener('click', () => callAI('summarize'));
+    if (tagsBtn) tagsBtn.addEventListener('click', () => callAI('suggest_tags'));
+
+    // ── Apply button ──
+    document.getElementById('ai-apply-btn').addEventListener('click', applyResult);
+
+    function callAI(action) {
+        const content = document.getElementById('id_content')?.value || '';
+        const title = document.getElementById('id_title')?.value || '';
+
+        if (!content.trim() && !title.trim()) {
+            showError('Please write some content or a title first.');
+            return;
+        }
+
+        currentAction = action;
+        showLoading();
+
+        fetch(aiAssistUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ action, content, title }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                showError(data.error);
+            } else {
+                showResult(data.result, action);
+            }
+        })
+        .catch(err => showError('Network error: ' + err.message));
+    }
+
+    function applyResult() {
+        const text = document.getElementById('ai-result-text').innerText;
+        if (!text) return;
+
+        if (currentAction === 'summarize') {
+            const el = document.getElementById('id_excerpt');
+            if (el) el.value = text;
+        } else if (currentAction === 'suggest_tags') {
+            const el = document.getElementById('id_tags_input');
+            if (el) el.value = text;
+        } else if (currentAction === 'suggest_title') {
+            // Extract first title from numbered list
+            const match = text.match(/1\.\s*(.+)/);
+            const el = document.getElementById('id_title');
+            if (el && match) el.value = match[1].trim();
+        } else if (currentAction === 'improve') {
+            const el = document.getElementById('id_content');
+            if (el && confirm('Replace your current draft with the improved version?')) {
+                el.value = text;
+            }
+        }
+    }
+
+    function showLoading() {
+        document.getElementById('ai-loading').classList.remove('hidden');
+        document.getElementById('ai-result-area').classList.add('hidden');
+        document.getElementById('ai-error').classList.add('hidden');
+    }
+
+    function showResult(text, action) {
+        const labels = {
+            summarize: 'Generated Excerpt',
+            improve: 'Improved Draft',
+            suggest_tags: 'Suggested Tags',
+            suggest_title: 'Title Ideas',
+        };
+        document.getElementById('ai-loading').classList.add('hidden');
+        document.getElementById('ai-error').classList.add('hidden');
+        document.getElementById('ai-result-label').textContent = labels[action] || 'Result';
+        document.getElementById('ai-result-text').textContent = text;
+        document.getElementById('ai-result-area').classList.remove('hidden');
+    }
+
+    function showError(msg) {
+        document.getElementById('ai-loading').classList.add('hidden');
+        document.getElementById('ai-result-area').classList.add('hidden');
+        const el = document.getElementById('ai-error');
+        el.textContent = '⚠ ' + msg;
+        el.classList.remove('hidden');
+    }
+})();
+</script>
+{% endblock %}

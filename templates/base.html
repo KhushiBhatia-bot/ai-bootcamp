@@ -1,0 +1,260 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Chronicle - Modern Blogging Platform{% endblock %}</title>
+    <!-- Tailwind CSS with Typography plugin -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                        serif: ['Newsreader', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .prose pre {
+            background-color: #0f172a;
+            color: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .prose code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+
+<body
+    class="flex flex-col min-h-full font-sans text-slate-800 antialiased bg-slate-50 selection:bg-brand-500 selection:text-white">
+
+    <!-- Global Navigation -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'blog:home' %}" class="flex items-center space-x-2.5 group">
+                        <span
+                            class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white font-black text-xl shadow-sm shadow-brand-500/30 group-hover:scale-105 transition">
+                            C
+                        </span>
+                        <span
+                            class="text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-brand-600 transition">
+                            Chronicle
+                        </span>
+                    </a>
+                </div>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex items-center space-x-1 lg:space-x-3">
+                    <a href="{% url 'blog:home' %}"
+                        class="px-3 py-2 rounded-lg text-sm font-semibold {% if request.resolver_match.url_name == 'home' %}text-brand-600 bg-brand-50{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-100{% endif %} transition">
+                        Explore
+                    </a>
+
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'blog:dashboard' %}"
+                        class="px-3 py-2 rounded-lg text-sm font-semibold {% if request.resolver_match.url_name == 'dashboard' %}text-brand-600 bg-brand-50{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-100{% endif %} transition flex items-center space-x-1.5">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                            </path>
+                        </svg>
+                        <span>My Dashboard</span>
+                    </a>
+
+                    <a href="{% url 'blog:post_create' %}"
+                        class="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 shadow-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                        <span>Write Post</span>
+                    </a>
+
+                    <!-- User Profile Menu -->
+                    <div class="relative ml-2 pl-3 border-l border-slate-200 flex items-center space-x-2">
+                        <a href="{% url 'accounts:profile' %}"
+                            class="flex items-center space-x-2 text-sm font-semibold text-slate-700 hover:text-brand-600 transition"
+                            title="Profile Settings">
+                            <div
+                                class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs uppercase ring-2 ring-brand-500/20">
+                                {{ user.username|slice:":2" }}
+                            </div>
+                            <span class="max-w-[120px] truncate">{{ user.username }}</span>
+                        </a>
+                        <a href="{% url 'accounts:logout' %}"
+                            class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                            title="Log Out">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                </path>
+                            </svg>
+                        </a>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}"
+                        class="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition">
+                        Log In
+                    </a>
+                    <a href="{% url 'accounts:register' %}"
+                        class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold bg-slate-900 text-white hover:bg-brand-600 shadow-sm transition">
+                        Sign Up
+                    </a>
+                    {% endif %}
+                </nav>
+
+                <!-- Mobile menu toggle -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" type="button"
+                        class="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile menu dropdown -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4 pt-2 border-t border-slate-100 space-y-1">
+                <a href="{% url 'blog:home' %}"
+                    class="block px-3 py-2 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-100">Explore</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'blog:dashboard' %}"
+                    class="block px-3 py-2 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-100">My
+                    Dashboard</a>
+                <a href="{% url 'blog:post_create' %}"
+                    class="block px-3 py-2 rounded-lg text-base font-semibold text-brand-600 hover:bg-brand-50">Write
+                    Post</a>
+                <a href="{% url 'accounts:profile' %}"
+                    class="block px-3 py-2 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-100">Profile
+                    Settings ({{ user.username }})</a>
+                <a href="{% url 'accounts:logout' %}"
+                    class="block px-3 py-2 rounded-lg text-base font-semibold text-rose-600 hover:bg-rose-50">Log
+                    Out</a>
+                {% else %}
+                <a href="{% url 'accounts:login' %}"
+                    class="block px-3 py-2 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-100">Log
+                    In</a>
+                <a href="{% url 'accounts:register' %}"
+                    class="block px-3 py-2 rounded-lg text-base font-semibold text-brand-600 hover:bg-brand-50">Sign
+                    Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Messages Container -->
+    {% if messages %}
+    <div class="max-w-4xl mx-auto px-4 pt-4 w-full">
+        {% for message in messages %}
+        <div class="alert-auto-dismiss mb-3 p-4 rounded-xl flex items-center justify-between text-sm font-medium shadow-sm transition-all
+                    {% if message.tags == 'error' %} bg-rose-50 border border-rose-200 text-rose-800
+                    {% elif message.tags == 'success' %} bg-emerald-50 border border-emerald-200 text-emerald-800
+                    {% elif message.tags == 'warning' %} bg-amber-50 border border-amber-200 text-amber-800
+                    {% else %} bg-indigo-50 border border-indigo-200 text-indigo-800
+                    {% endif %}">
+            <div class="flex items-center space-x-2.5">
+                {% if message.tags == 'success' %}
+                <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                {% elif message.tags == 'error' %}
+                <svg class="w-5 h-5 text-rose-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                {% else %}
+                <svg class="w-5 h-5 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-16 py-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-2">
+                    <span
+                        class="w-6 h-6 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold text-xs">C</span>
+                    <span class="font-bold text-slate-900 tracking-tight">Chronicle</span>
+                    <span class="text-xs text-slate-500">— A user-specific publishing and blogging platform</span>
+                </div>
+                <div class="flex items-center space-x-6 text-sm text-slate-500">
+                    <a href="{% url 'blog:home' %}" class="hover:text-brand-600 transition">Browse Stories</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'blog:dashboard' %}" class="hover:text-brand-600 transition">Author Dashboard</a>
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}" class="hover:text-brand-600 transition">Sign In</a>
+                    <a href="{% url 'accounts:register' %}" class="hover:text-brand-600 transition">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div
+                class="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400">
+                <p>&copy; 2026 Chronicle. Built with Django & Tailwind CSS.</p>
+                <p class="mt-2 sm:mt-0">Open public reading &bull; Authenticated authoring &bull; Real-time interactions
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Static JS for dynamic likes and alerts -->
+    <script src="{% static 'js/blog.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

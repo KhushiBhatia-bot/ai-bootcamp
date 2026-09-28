@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}Author Dashboard - Chronicle{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Dashboard Top Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+                Author Dashboard
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Manage your stories, view engagement statistics, and draft new ideas.
+            </p>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <a href="{% url 'blog:author_posts' user.username %}" class="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition shadow-sm">
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <span>View Public Profile</span>
+            </a>
+            <a href="{% url 'blog:post_create' %}" class="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 shadow-sm transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span>Write New Post</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Analytics / Stats Row -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Articles</span>
+            <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">{{ total_posts }}</p>
+            <span class="text-xs text-slate-400 mt-1 block">{{ total_published }} live &bull; {{ total_drafts }} drafts</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Published</span>
+            <p class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-2">{{ total_published }}</p>
+            <span class="text-xs text-slate-400 mt-1 block">Live on the public feed</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Reads</span>
+            <p class="text-2xl sm:text-3xl font-extrabold text-sky-600 mt-2">{{ total_views }}</p>
+            <span class="text-xs text-slate-400 mt-1 block">Unique page views</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Likes Received</span>
+            <p class="text-2xl sm:text-3xl font-extrabold text-rose-600 mt-2">{{ total_likes }}</p>
+            <span class="text-xs text-slate-400 mt-1 block">From registered readers</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Comments</span>
+            <p class="text-2xl sm:text-3xl font-extrabold text-brand-600 mt-2">{{ total_comments }}</p>
+            <span class="text-xs text-slate-400 mt-1 block">Discussion interactions</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Followers</span>
+            <p class="text-2xl sm:text-3xl font-extrabold text-violet-600 mt-2">{{ follower_count }}</p>
+            <span class="text-xs text-slate-400 mt-1 block">Authors following you</span>
+        </div>
+    </div>
+
+    <!-- Section: Drafts (In Progress) -->
+    {% if draft_posts %}
+        <div class="mb-12">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-2">
+                    <h2 class="text-lg font-bold text-slate-900">Drafts (In Progress)</h2>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+                        {{ draft_posts.count }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100">
+                {% for post in draft_posts %}
+                    <div class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/60 transition">
+                        <div class="max-w-xl">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                    Draft
+                                </span>
+                                <span class="text-xs text-slate-400">Last edited {{ post.updated_at|timesince }} ago</span>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base">
+                                <a href="{{ post.get_absolute_url }}" class="hover:text-brand-600 transition">
+                                    {{ post.title }}
+                                </a>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1 line-clamp-1">
+                                {{ post.excerpt|default:"No excerpt" }}
+                            </p>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <a href="{{ post.get_absolute_url }}" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                                Preview
+                            </a>
+                            <a href="{% url 'blog:post_edit' post.slug %}" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-50 text-brand-700 hover:bg-brand-100 transition">
+                                Edit
+                            </a>
+                            <a href="{% url 'blog:post_delete' post.slug %}" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition">
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Section: Published Stories -->
+    <div>
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2">
+                <h2 class="text-lg font-bold text-slate-900">Published Stories</h2>
+                <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                    {{ published_posts.count }}
+                </span>
+            </div>
+        </div>
+
+        {% if published_posts %}
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100">
+                {% for post in published_posts %}
+                    <div class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/60 transition">
+                        <div class="max-w-xl">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    Published
+                                </span>
+                                <span class="text-xs text-slate-400">Published {{ post.published_at|date:"M j, Y" }}</span>
+                                <span class="text-xs text-slate-300">&bull;</span>
+                                <span class="text-xs text-slate-500 font-medium">{{ post.reading_time_minutes }} min read</span>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base">
+                                <a href="{{ post.get_absolute_url }}" class="hover:text-brand-600 transition">
+                                    {{ post.title }}
+                                </a>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1 line-clamp-1">
+                                {{ post.excerpt }}
+                            </p>
+                            <div class="flex items-center space-x-4 mt-2 text-xs text-slate-400">
+                                <span class="flex items-center space-x-1">
+                                    <svg class="w-3.5 h-3.5 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                                    <span>{{ post.likes.count }} likes</span>
+                                </span>
+                                <span class="flex items-center space-x-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                    <span>{{ post.comments.count }} comments</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <a href="{{ post.get_absolute_url }}" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                                View
+                            </a>
+                            <a href="{% url 'blog:post_edit' post.slug %}" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-50 text-brand-700 hover:bg-brand-100 transition">
+                                Edit
+                            </a>
+                            <a href="{% url 'blog:post_delete' post.slug %}" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition">
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white rounded-2xl border border-slate-200 text-center py-12 px-6">
+                <h3 class="text-sm font-bold text-slate-900">You haven't published any stories yet</h3>
+                <p class="mt-1 text-xs text-slate-500">
+                    Write your first post and publish it to share with the community!
+                </p>
+                <div class="mt-4">
+                    <a href="{% url 'blog:post_create' %}" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white hover:bg-brand-700 transition">
+                        Write a Post
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

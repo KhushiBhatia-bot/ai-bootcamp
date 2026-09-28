@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Create an Account - Chronicle{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+    <div class="max-w-lg w-full bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/80 shadow-sm">
+        <div class="text-center mb-8">
+            <span class="w-12 h-12 rounded-2xl bg-brand-600 text-white inline-flex items-center justify-center font-extrabold text-2xl shadow-sm shadow-brand-500/30 mb-4">
+                C
+            </span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Create an Account</h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Join Chronicle to publish articles, like stories, and engage in discussions.
+            </p>
+        </div>
+
+        <form method="POST" novalidate class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Username <span class="text-rose-500">*</span>
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Email Address <span class="text-rose-500">*</span>
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        First Name
+                    </label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Last Name
+                    </label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <p class="mt-1 text-xs text-rose-600 font-medium">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <label for="{{ form.password1.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Password <span class="text-rose-500">*</span>
+                </label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.password2.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Confirm Password <span class="text-rose-500">*</span>
+                </label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="w-full mt-4 py-3 px-4 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 shadow-sm transition">
+                Create Account &amp; Sign In
+            </button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+            <p class="text-sm text-slate-600">
+                Already have an account?
+                <a href="{% url 'accounts:login' %}" class="font-bold text-brand-600 hover:text-brand-700 transition ml-1">
+                    Log in
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
