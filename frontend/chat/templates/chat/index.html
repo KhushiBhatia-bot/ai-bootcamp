@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ResearchMate</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'chat/css/style.css' %}">
+</head>
+
+<body>
+
+<!-- Decorative background -->
+<div class="bg-grid"></div>
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+<div class="bg-orb orb3"></div>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+            <h2>ResearchMate</h2>
+        </div>
+
+        <button id="new-chat-button" class="new-chat">
+            + New Chat
+        </button>
+
+        <!-- Tag / Category Filters -->
+        <div class="tag-filter-bar">
+            <span class="tag-chip active" data-tag="all">All</span>
+            <span class="tag-chip" data-tag="AI">🤖 AI</span>
+            <span class="tag-chip" data-tag="Economics">📈 Econ</span>
+            <span class="tag-chip" data-tag="Biology">🧬 Bio</span>
+            <span class="tag-chip" data-tag="General">📚 General</span>
+        </div>
+
+        <div id="chat-list" class="chat-list">
+        </div>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1 id="current-chat-title">ResearchMate</h1>
+                <span id="current-chat-tag" class="chat-tag-pill" style="display:none;"></span>
+            </div>
+            <div class="topbar-actions">
+                <button id="export-button" class="icon-btn" title="Export Research Report (.md)">
+                    📥 Export
+                </button>
+                <button id="logout-button" class="logout-btn">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+
+        <section id="messages" class="messages">
+
+            <div class="welcome">
+                <h2>What can I help you research?</h2>
+
+                <p>
+                    Ask a question or upload a PDF / document to analyze. I search the web and synthesize reports with citations.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- Document Attachment Preview -->
+        <div id="doc-preview-bar" class="doc-preview-bar" style="display:none;">
+            <div class="doc-preview-info">
+                <span class="doc-icon">📄</span>
+                <span id="doc-filename">document.pdf</span>
+                <span id="doc-char-count" class="doc-size">(0 chars)</span>
+            </div>
+            <button id="remove-doc-btn" class="remove-doc-btn" title="Remove attached document">×</button>
+        </div>
+
+        <form id="message-form" class="input-area">
+
+            <input type="file" id="doc-upload-input" accept=".pdf,.docx,.txt,.md,.csv,.json,.py,.js,.html" style="display: none;">
+            
+            <button type="button" id="attach-doc-btn" class="attach-btn" title="Attach PDF or Document">
+                📎
+            </button>
+
+            <textarea
+                id="message-input"
+                placeholder="Ask ResearchMate or analyze uploaded doc..."
+                rows="1"
+            ></textarea>
+
+            <button type="submit" class="send-btn">
+                Send
+            </button>
+
+        </form>
+
+    </main>
+
+</div>
+
+<!-- Context Menu / Modals -->
+<div id="toast-notification" class="toast-notification"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="{% static 'chat/js/chat.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,1429 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResearchMate — AI-Powered Research Assistant</title>
+    <meta name="description"
+        content="ResearchMate is an AI research assistant that answers complex questions, searches the web in real-time, and helps you explore any topic with depth and precision.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #060812;
+            --bg2: #0c1020;
+            --surface: #111827;
+            --surface2: #1a2235;
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #6366f1;
+            --accent2: #8b5cf6;
+            --accent3: #06b6d4;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --glow: rgba(99, 102, 241, 0.35);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── ANIMATED BACKGROUND ── */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.45;
+        }
+
+        .orb1 {
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            animation: orbFloat1 18s ease-in-out infinite;
+        }
+
+        .orb2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            bottom: 0;
+            right: -100px;
+            animation: orbFloat2 22s ease-in-out infinite;
+        }
+
+        .orb3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbFloat3 14s ease-in-out infinite;
+        }
+
+        @keyframes orbFloat1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(60px, 80px);
+            }
+        }
+
+        @keyframes orbFloat2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(-50px, -60px);
+            }
+        }
+
+        @keyframes orbFloat3 {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 0 2rem;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(6, 8, 18, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+        }
+
+        .nav-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #e2e8f0, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+        }
+
+        .btn-nav-login {
+            padding: 8px 20px;
+            background: transparent;
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            color: var(--accent);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-nav-login:hover {
+            background: rgba(99, 102, 241, 0.12);
+            border-color: var(--accent);
+        }
+
+        .btn-nav-signup {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .btn-nav-signup:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        /* ── HERO ── */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 7rem 2rem 4rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 100px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #a5b4fc;
+            margin-bottom: 2rem;
+            letter-spacing: 0.03em;
+        }
+
+        .hero-badge-dot {
+            width: 7px;
+            height: 7px;
+            background: #6366f1;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.06;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #e2e8f0 0%, #6366f1 40%, #8b5cf6 60%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s ease-in-out infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: var(--text-muted);
+            max-width: 620px;
+            line-height: 1.7;
+            margin-bottom: 3rem;
+            font-weight: 400;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            padding: 16px 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+            box-shadow: 0 0 30px var(--glow), 0 4px 20px rgba(0, 0, 0, 0.4);
+            letter-spacing: 0.01em;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px var(--glow), 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-secondary {
+            padding: 16px 36px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ── DEMO WINDOW ── */
+        .hero-demo {
+            margin-top: 5rem;
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 0 80px rgba(99, 102, 241, 0.2), 0 40px 80px rgba(0, 0, 0, 0.6);
+            background: var(--surface);
+        }
+
+        .demo-bar {
+            background: var(--surface2);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .demo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .demo-dot.red {
+            background: #ef4444;
+        }
+
+        .demo-dot.yellow {
+            background: #f59e0b;
+        }
+
+        .demo-dot.green {
+            background: #22c55e;
+        }
+
+        .demo-bar-title {
+            flex: 1;
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .demo-chat {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-height: 220px;
+        }
+
+        .demo-msg {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            animation: fadeInUp 0.5s ease both;
+        }
+
+        .demo-msg.user {
+            flex-direction: row-reverse;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .demo-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+        }
+
+        .demo-avatar.ai {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .demo-avatar.human {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+
+        .demo-bubble {
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 0.87rem;
+            line-height: 1.55;
+            max-width: 75%;
+        }
+
+        .demo-msg.ai .demo-bubble {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-top-left-radius: 4px;
+        }
+
+        .demo-msg.user .demo-bubble {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border-top-right-radius: 4px;
+        }
+
+        .demo-typing {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .demo-typing span {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: bounce 1.2s ease-in-out infinite;
+        }
+
+        .demo-typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .demo-typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* ── STATS ── */
+        .stats-strip {
+            position: relative;
+            z-index: 1;
+            padding: 4rem 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.04), transparent);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── FEATURES ── */
+        .features {
+            position: relative;
+            z-index: 1;
+            padding: 6rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            text-align: center;
+            max-width: 560px;
+            margin: 0 auto 4rem;
+            line-height: 1.7;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.06), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 24px;
+            margin-bottom: 1.25rem;
+        }
+
+        .icon-purple {
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .icon-cyan {
+            background: rgba(6, 182, 212, 0.15);
+        }
+
+        .icon-pink {
+            background: rgba(236, 72, 153, 0.15);
+        }
+
+        .icon-green {
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .icon-amber {
+            background: rgba(245, 158, 11, 0.15);
+        }
+
+        .icon-red {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            color: var(--text);
+        }
+
+        .feature-card p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+        }
+
+        /* ── HOW IT WORKS ── */
+        .how-it-works {
+            position: relative;
+            z-index: 1;
+            padding: 6rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 3rem;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            left: 26px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent), var(--accent2), transparent);
+        }
+
+        .step {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: grid;
+            place-items: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .step-content h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .step-content p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.65;
+        }
+
+        /* ── CTA SECTION ── */
+        .cta-section {
+            position: relative;
+            z-index: 1;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .cta-card {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 4rem 3rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 28px;
+            box-shadow: 0 0 80px rgba(99, 102, 241, 0.12);
+        }
+
+        .cta-card h2 {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .cta-card p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.65;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* ── MODAL OVERLAY ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            box-shadow: 0 0 80px rgba(99, 102, 241, 0.2), 0 40px 80px rgba(0, 0, 0, 0.6);
+            animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            display: grid;
+            place-items: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--text);
+        }
+
+        .modal-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.75rem;
+        }
+
+        .modal-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+        }
+
+        .modal-logo-text {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+        }
+
+        .modal-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 20px var(--glow);
+        }
+
+        .submit-btn:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-message {
+            text-align: center;
+            font-size: 0.87rem;
+            margin-top: 1rem;
+            min-height: 20px;
+            font-weight: 500;
+        }
+
+        .auth-message.error {
+            color: #f87171;
+        }
+
+        .auth-message.success {
+            color: #4ade80;
+        }
+
+        .modal-switch {
+            text-align: center;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+        }
+
+        .modal-switch a {
+            color: var(--accent);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .modal-switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Decorative background -->
+    <div class="bg-grid"></div>
+    <div class="bg-orb orb1"></div>
+    <div class="bg-orb orb2"></div>
+    <div class="bg-orb orb3"></div>
+
+    <!-- ── NAVIGATION ── -->
+    <nav>
+        <a class="nav-brand" href="/">
+            <div class="nav-logo">🔬</div>
+            <span class="nav-name">ResearchMate</span>
+        </a>
+        <div class="nav-links">
+            <a class="nav-link" onclick="scrollToFeatures()">Features</a>
+            <a class="nav-link" onclick="scrollToHow()">How it works</a>
+            <button class="btn-nav-login" id="nav-login-btn" onclick="openModal('login')">Login</button>
+            <button class="btn-nav-signup" onclick="openModal('register')">Get Started</button>
+        </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            Powered by Local AI &amp; Real-Time Web Search
+        </div>
+        <h1>
+            Research smarter<br>
+            with <span class="hero-gradient">AI that thinks</span>
+        </h1>
+        <p>
+            ResearchMate is your intelligent research companion. Ask complex questions,
+            get deeply sourced answers, and explore any topic with real-time web search
+            — all running privately on your machine.
+        </p>
+        <div class="hero-actions">
+            <button class="btn-primary" onclick="openModal('register')">
+                Start Researching Free →
+            </button>
+            <button class="btn-secondary" onclick="openModal('login')">
+                Sign in
+            </button>
+        </div>
+
+        <!-- Demo window -->
+        <div class="hero-demo reveal">
+            <div class="demo-bar">
+                <div class="demo-dot red"></div>
+                <div class="demo-dot yellow"></div>
+                <div class="demo-dot green"></div>
+                <span class="demo-bar-title">ResearchMate — AI Research Assistant</span>
+            </div>
+            <div class="demo-chat">
+                <div class="demo-msg user" style="animation-delay:0.1s">
+                    <div class="demo-avatar human">👤</div>
+                    <div class="demo-bubble">What are the latest breakthroughs in quantum computing in 2026?</div>
+                </div>
+                <div class="demo-msg ai" style="animation-delay:0.4s">
+                    <div class="demo-avatar ai">🔬</div>
+                    <div class="demo-bubble">
+                        🔎 Searching the web for latest quantum computing breakthroughs...
+                        <div class="demo-typing" style="margin-top:8px"><span></span><span></span><span></span></div>
+                    </div>
+                </div>
+                <div class="demo-msg ai" style="animation-delay:0.9s">
+                    <div class="demo-avatar ai">🔬</div>
+                    <div class="demo-bubble">In 2026, several major milestones have been achieved: Google's Willow chip
+                        reached 1,000 logical qubits with error rates below threshold, IBM announced a 4,000-qubit
+                        system, and Microsoft demonstrated topological qubits stable at room temperature for brief
+                        intervals...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── STATS ── -->
+    <section class="stats-strip reveal">
+        <div class="stat-item">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">Private &amp; Local</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">Real-Time</div>
+            <div class="stat-label">Web Search</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">∞</div>
+            <div class="stat-label">Topics Supported</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">PDF</div>
+            <div class="stat-label">Document Q&amp;A</div>
+        </div>
+    </section>
+
+    <!-- ── FEATURES ── -->
+    <section class="features" id="features-section">
+        <div class="section-tag reveal">Everything you need</div>
+        <h2 class="section-title reveal">Built for serious research</h2>
+        <p class="section-subtitle reveal">From quick fact-checks to deep multi-source analysis, ResearchMate adapts to
+            every research task.</p>
+
+        <div class="feature-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon icon-purple">🧠</div>
+                <h3>Local AI — Total Privacy</h3>
+                <p>Your conversations never leave your machine. Powered by Ollama running locally, your research stays
+                    completely private.</p>
+            </div>
+            <div class="feature-card reveal" style="transition-delay:0.1s">
+                <div class="feature-icon icon-cyan">🌐</div>
+                <h3>Real-Time Web Search</h3>
+                <p>When current information matters, ResearchMate automatically searches the web and cites its sources —
+                    no hallucinations.</p>
+            </div>
+            <div class="feature-card reveal" style="transition-delay:0.2s">
+                <div class="feature-icon icon-pink">📄</div>
+                <h3>PDF &amp; Document Q&amp;A</h3>
+                <p>Upload any PDF, DOCX, or text file and ask questions directly about the content. Get answers from
+                    your own documents.</p>
+            </div>
+            <div class="feature-card reveal" style="transition-delay:0s">
+                <div class="feature-icon icon-green">⚡</div>
+                <h3>Real-Time Streaming</h3>
+                <p>Responses stream in token-by-token with live status updates, so you always know what the AI is doing.
+                </p>
+            </div>
+            <div class="feature-card reveal" style="transition-delay:0.1s">
+                <div class="feature-icon icon-amber">📁</div>
+                <h3>Organized Conversations</h3>
+                <p>Pin important chats, tag them by topic (AI, Economics, Biology), rename conversations, and find
+                    anything instantly.</p>
+            </div>
+            <div class="feature-card reveal" style="transition-delay:0.2s">
+                <div class="feature-icon icon-red">📤</div>
+                <h3>Export &amp; Share</h3>
+                <p>Export any conversation as a clean text file. Copy responses with one click. Your research, your
+                    format.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── HOW IT WORKS ── -->
+    <section class="how-it-works" id="how-section">
+        <div class="section-tag reveal">Simple to use</div>
+        <h2 class="section-title reveal">How it works</h2>
+        <p class="section-subtitle reveal">Get from question to insight in seconds.</p>
+
+        <div class="steps">
+            <div class="step reveal">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Create your free account</h3>
+                    <p>Sign up with your email in under 30 seconds. No credit card, no subscriptions. ResearchMate runs
+                        on your own machine.</p>
+                </div>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Ask anything</h3>
+                    <p>Type your research question in natural language. Upload a PDF for document-specific Q&amp;A, or
+                        just ask about any topic.</p>
+                </div>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h3>Get sourced, streaming answers</h3>
+                    <p>Watch as ResearchMate reasons through your question, searches the web if needed, and streams a
+                        well-cited response in real time.</p>
+                </div>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <h3>Organize &amp; revisit</h3>
+                    <p>All conversations are saved. Tag them by subject, pin your favorites, and build a personal
+                        research library over time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CTA ── -->
+    <section class="cta-section">
+        <div class="cta-card reveal">
+            <h2>Ready to research smarter?</h2>
+            <p>Join researchers, students, and analysts already using ResearchMate to get deeper insights faster.</p>
+            <button class="btn-primary" style="display:inline-block" onclick="openModal('register')">
+                Create Free Account →
+            </button>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+        <p>© 2026 ResearchMate. Built for curious minds.</p>
+    </footer>
+
+
+    <!-- ══════════════════════════════════
+     LOGIN MODAL
+═══════════════════════════════════ -->
+    <div class="modal-overlay" id="login-modal" onclick="handleOverlayClick(event, 'login')">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal('login')" title="Close">✕</button>
+            <div class="modal-logo">
+                <div class="modal-logo-icon">🔬</div>
+                <span class="modal-logo-text">ResearchMate</span>
+            </div>
+            <h2 class="modal-title">Welcome back</h2>
+            <p class="modal-subtitle">Sign in to continue your research</p>
+
+            <form id="login-form" autocomplete="on">
+                <div class="form-group">
+                    <label for="login-email">Email address</label>
+                    <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password" required
+                        autocomplete="current-password">
+                </div>
+                <button type="submit" class="submit-btn" id="login-submit-btn">Sign In</button>
+            </form>
+
+            <div id="login-message" class="auth-message"></div>
+
+            <p class="modal-switch">
+                Don't have an account?
+                <a onclick="switchModal('login','register')">Create one free</a>
+            </p>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════
+     REGISTER MODAL
+═══════════════════════════════════ -->
+    <div class="modal-overlay" id="register-modal" onclick="handleOverlayClick(event, 'register')">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal('register')" title="Close">✕</button>
+            <div class="modal-logo">
+                <div class="modal-logo-icon">🔬</div>
+                <span class="modal-logo-text">ResearchMate</span>
+            </div>
+            <h2 class="modal-title">Create your account</h2>
+            <p class="modal-subtitle">Start researching smarter today — free</p>
+
+            <form id="register-form" autocomplete="on">
+                <div class="form-group">
+                    <label for="reg-email">Email address</label>
+                    <input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" placeholder="Create a strong password" required
+                        autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="reg-confirm">Confirm Password</label>
+                    <input type="password" id="reg-confirm" placeholder="Repeat your password" required
+                        autocomplete="new-password">
+                </div>
+                <button type="submit" class="submit-btn" id="reg-submit-btn">Create Account</button>
+            </form>
+
+            <div id="register-message" class="auth-message"></div>
+
+            <p class="modal-switch">
+                Already have an account?
+                <a onclick="switchModal('register','login')">Sign in</a>
+            </p>
+        </div>
+    </div>
+
+
+    <script>
+        const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+
+        // ── MODAL MANAGEMENT ──
+        function openModal(type) {
+            document.getElementById(`${type}-modal`).classList.add('open');
+            document.body.style.overflow = 'hidden';
+            // Auto-focus first input
+            setTimeout(() => {
+                const first = document.querySelector(`#${type}-modal input`);
+                if (first) first.focus();
+            }, 80);
+        }
+        function closeModal(type) {
+            document.getElementById(`${type}-modal`).classList.remove('open');
+            document.body.style.overflow = '';
+            // Clear messages
+            const msg = document.getElementById(`${type === 'login' ? 'login' : 'register'}-message`);
+            if (msg) { msg.textContent = ''; msg.className = 'auth-message'; }
+        }
+        function handleOverlayClick(e, type) {
+            if (e.target === document.getElementById(`${type}-modal`)) closeModal(type);
+        }
+        function switchModal(from, to) {
+            closeModal(from);
+            setTimeout(() => openModal(to), 80);
+        }
+
+        // Close on Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                closeModal('login');
+                closeModal('register');
+            }
+        });
+
+        // ── AUTO-LOGIN IF ALREADY HAS TOKEN ──
+        (function () {
+            const token = localStorage.getItem('access_token');
+            if (token) window.location.href = '/chat/';
+            // Auto-open modals if redirected
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('signup') === '1') {
+                setTimeout(() => openModal('register'), 200);
+                history.replaceState({}, '', '/');
+            } else if (params.get('login') === '1') {
+                setTimeout(() => openModal('login'), 200);
+                history.replaceState({}, '', '/');
+            }
+        })();
+
+        // ── SCROLL HELPERS ──
+        function scrollToFeatures() {
+            document.getElementById('features-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        function scrollToHow() {
+            document.getElementById('how-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ── LOGIN FORM ──
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const msgEl = document.getElementById('login-message');
+            const btn = document.getElementById('login-submit-btn');
+
+            msgEl.textContent = 'Signing in...';
+            msgEl.className = 'auth-message';
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    msgEl.textContent = data.detail || 'Login failed. Please check your credentials.';
+                    msgEl.className = 'auth-message error';
+                    btn.disabled = false;
+                    btn.textContent = 'Sign In';
+                    return;
+                }
+                localStorage.setItem('access_token', data.access_token);
+                msgEl.textContent = '✓ Success! Redirecting...';
+                msgEl.className = 'auth-message success';
+                setTimeout(() => window.location.href = '/chat/', 400);
+            } catch (err) {
+                msgEl.textContent = 'Unable to connect. Is the server running?';
+                msgEl.className = 'auth-message error';
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        });
+
+        // ── REGISTER FORM ──
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            const msgEl = document.getElementById('register-message');
+            const btn = document.getElementById('reg-submit-btn');
+
+            if (password !== confirm) {
+                msgEl.textContent = 'Passwords do not match.';
+                msgEl.className = 'auth-message error';
+                return;
+            }
+            if (password.length < 6) {
+                msgEl.textContent = 'Password must be at least 6 characters.';
+                msgEl.className = 'auth-message error';
+                return;
+            }
+
+            msgEl.textContent = 'Creating account...';
+            msgEl.className = 'auth-message';
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    msgEl.textContent = data.detail || 'Registration failed.';
+                    msgEl.className = 'auth-message error';
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account';
+                    return;
+                }
+                msgEl.textContent = '✓ Account created! Redirecting to verification...';
+                msgEl.className = 'auth-message success';
+                btn.textContent = 'Account Created!';
+                setTimeout(() => {
+                    window.location.href = `/verify-email/?email=${encodeURIComponent(email)}`;
+                }, 1000);
+            } catch (err) {
+                msgEl.textContent = 'Unable to connect. Is the server running?';
+                msgEl.className = 'auth-message error';
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        });
+
+        // ── SCROLL REVEAL ──
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(el => {
+                if (el.isIntersecting) { el.target.classList.add('visible'); }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

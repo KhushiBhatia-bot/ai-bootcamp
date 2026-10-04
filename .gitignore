@@ -1,0 +1,22 @@
+# Environment
+.env
+.venv/
+env/
+venv/
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database (optional if keeping local data private)
+*.sqlite3
+researchmate.db
+
+# Scratch / Temporary Test Scripts
+scratch_*.py
+test_llm.py
+
+# OS Files
+.DS_Store
+Thumbs.db

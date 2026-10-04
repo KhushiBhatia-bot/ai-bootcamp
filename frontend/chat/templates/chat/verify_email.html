@@ -1,0 +1,300 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResearchMate — Verify Email</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #060812;
+            --surface: #111827;
+            --surface2: #1a2235;
+            --border: rgba(255,255,255,0.08);
+            --accent: #6366f1;
+            --accent2: #8b5cf6;
+            --accent3: #06b6d4;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --glow: rgba(99,102,241,0.35);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* ── ANIMATED BACKGROUND ── */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.45;
+        }
+
+        .orb1 {
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            animation: orbFloat1 18s ease-in-out infinite;
+        }
+
+        .orb2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            bottom: -200px;
+            right: -100px;
+            animation: orbFloat2 22s ease-in-out infinite;
+        }
+
+        @keyframes orbFloat1 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(60px, 80px); }
+        }
+
+        @keyframes orbFloat2 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-50px, -60px); }
+        }
+
+        /* ── MODAL CARD ── */
+        .modal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 0 80px rgba(99, 102, 241, 0.2), 0 40px 80px rgba(0, 0, 0, 0.6);
+            animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.92) translateY(20px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        .modal-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 1.75rem;
+        }
+
+        .modal-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+        }
+
+        .modal-logo-text { font-size: 1.3rem; font-weight: 800; }
+        .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem; text-align: center; }
+        .modal-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        .form-group input::placeholder { color: var(--text-dim); }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 20px var(--glow);
+        }
+        .submit-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .auth-message {
+            text-align: center;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            min-height: 20px;
+            font-weight: 500;
+        }
+        .auth-message.error { color: #f87171; }
+        .auth-message.success { color: #4ade80; }
+
+        .modal-switch {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+        }
+        .modal-switch a {
+            color: var(--accent);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .modal-switch a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- Decorative background -->
+    <div class="bg-grid"></div>
+    <div class="bg-orb orb1"></div>
+    <div class="bg-orb orb2"></div>
+
+    <div class="modal-card">
+        <div class="modal-logo">
+            <div class="modal-logo-icon">🔬</div>
+            <span class="modal-logo-text">ResearchMate</span>
+        </div>
+        <h2 class="modal-title">Verify Email</h2>
+        <p class="modal-subtitle">Enter the 6-digit verification code sent to your email.</p>
+
+        <form id="verify-form" autocomplete="off">
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" id="email" placeholder="you@example.com" required readonly style="opacity: 0.7;">
+            </div>
+            <div class="form-group">
+                <label for="otp">Verification Code</label>
+                <input type="text" id="otp" maxlength="6" inputmode="numeric" placeholder="Enter 6-digit code" required autocomplete="one-time-code">
+            </div>
+            <button type="submit" class="submit-btn" id="verify-btn">Verify Account</button>
+        </form>
+
+        <div id="verify-message" class="auth-message"></div>
+
+        <p class="modal-switch">
+            Already verified?
+            <a href="/">Sign in</a>
+        </p>
+    </div>
+
+    <script>
+        const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+        
+        // Populate email from query param or localStorage
+        const emailInput = document.getElementById("email");
+        const params = new URLSearchParams(window.location.search);
+        let savedEmail = params.get('email') || localStorage.getItem("verification_email");
+        
+        if (savedEmail) {
+            emailInput.value = savedEmail;
+        } else {
+            emailInput.removeAttribute("readonly");
+            emailInput.style.opacity = "1";
+        }
+
+        document.getElementById("verify-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            const otp = document.getElementById("otp").value.trim();
+            const msgEl = document.getElementById("verify-message");
+            const btn = document.getElementById("verify-btn");
+
+            if (!/^\d{6}$/.test(otp)) {
+                msgEl.textContent = "Please enter a valid 6-digit code.";
+                msgEl.className = "auth-message error";
+                return;
+            }
+
+            msgEl.textContent = "Verifying your email...";
+            msgEl.className = "auth-message";
+            btn.disabled = true;
+            btn.textContent = "Verifying...";
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, otp })
+                });
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    msgEl.textContent = data.detail || "Verification failed.";
+                    msgEl.className = "auth-message error";
+                    btn.disabled = false;
+                    btn.textContent = "Verify Account";
+                    return;
+                }
+
+                localStorage.removeItem("verification_email");
+                msgEl.textContent = "✓ Email verified! Redirecting to login...";
+                msgEl.className = "auth-message success";
+                btn.textContent = "Success!";
+                
+                setTimeout(() => {
+                    window.location.replace("/?login=1");
+                }, 1200);
+
+            } catch (err) {
+                msgEl.textContent = "Unable to connect. Is the server running?";
+                msgEl.className = "auth-message error";
+                btn.disabled = false;
+                btn.textContent = "Verify Account";
+            }
+        });
+    </script>
+</body>
+</html>
