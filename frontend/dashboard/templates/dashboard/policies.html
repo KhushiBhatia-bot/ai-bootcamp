@@ -1,0 +1,146 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+Policies | PolicyGuard AI
+{% endblock %}
+
+{% block breadcrumb %}
+Policies
+{% endblock %}
+
+{% block content %}
+
+<div class="welcome">
+
+    <div>
+
+        <div class="eyebrow">
+            KNOWLEDGE BASE
+        </div>
+
+        <h2>
+            Policy Library
+        </h2>
+
+        <p>
+            Manage the documents that power PolicyGuard AI.
+        </p>
+
+    </div>
+
+    <a href="{% url 'upload_policy' %}"
+       class="primary-button">
+        + Upload Policy
+    </a>
+
+</div>
+
+
+<div class="policy-toolbar">
+
+    <div class="search-box">
+        🔍
+
+        <input
+            type="text"
+            placeholder="Search policies..."
+        >
+    </div>
+
+    <select>
+        <option>All categories</option>
+        <option>Security</option>
+        <option>Finance</option>
+        <option>HR</option>
+        <option>Operations</option>
+    </select>
+
+    <select>
+        <option>All status</option>
+        <option>Active</option>
+        <option>Processing</option>
+    </select>
+
+</div>
+
+
+<div class="policy-library-grid">
+
+    {% for policy in policies %}
+
+    <div class="policy-card">
+
+        <div class="policy-card-top">
+
+            <div class="large-document-icon">
+                PDF
+            </div>
+
+            <button class="more-button">
+                •••
+            </button>
+
+        </div>
+
+        <h3>
+            {{ policy.name }}
+        </h3>
+
+        <p>
+            {{ policy.description }}
+        </p>
+
+        <div class="policy-meta">
+
+            <span>
+                {{ policy.category }}
+            </span>
+
+            <span>
+                {{ policy.pages }} pages
+            </span>
+
+        </div>
+
+        <div class="policy-card-footer">
+
+            <div class="status active-status">
+                <span></span>
+                {{ policy.status }}
+            </div>
+
+            <span class="updated">
+                {{ policy.updated }}
+            </span>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            📄
+        </div>
+
+        <h3>No policies yet</h3>
+
+        <p>
+            Upload your first policy document to start
+            building your AI knowledge base.
+        </p>
+
+        <a href="{% url 'upload_policy' %}"
+           class="primary-button">
+            Upload your first policy
+        </a>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

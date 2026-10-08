@@ -1,0 +1,163 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}PolicyGuard AI{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{% static 'dashboard/css/style.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">🛡</div>
+
+            <div>
+                <h1>PolicyGuard</h1>
+                <span>AI Compliance Platform</span>
+            </div>
+        </div>
+
+        <nav class="navigation">
+
+            <div class="nav-section">
+
+                <span class="nav-label">WORKSPACE</span>
+
+                <a href="{% url 'dashboard' %}"
+                   class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                    <span>⌂</span>
+                    Dashboard
+                </a>
+
+                <a href="{% url 'policies' %}"
+                   class="nav-item {% if active_page == 'policies' %}active{% endif %}">
+                    <span>▣</span>
+                    Policies
+                </a>
+
+                <a href="#"
+                   class="nav-item {% if active_page == 'chat' %}active{% endif %}">
+                    <span>◈</span>
+                    Ask AI
+                </a>
+
+                <a href="#"
+                   class="nav-item {% if active_page == 'compliance' %}active{% endif %}">
+                    <span>✓</span>
+                    Compliance
+                </a>
+
+                <a href="#"
+                   class="nav-item {% if active_page == 'analytics' %}active{% endif %}">
+                    <span>▥</span>
+                    Analytics
+                </a>
+
+            </div>
+
+            <div class="nav-section bottom-nav">
+
+                <span class="nav-label">SYSTEM</span>
+
+                <a href="#"
+                   class="nav-item">
+                    <span>⚙</span>
+                    Settings
+                </a>
+
+                <a href="#"
+                   class="nav-item">
+                    <span>?</span>
+                    Help & Support
+                </a>
+
+            </div>
+
+        </nav>
+
+        <div class="sidebar-user">
+
+            <div class="avatar">
+                K
+            </div>
+
+            <div class="user-info">
+                <strong>Khushi</strong>
+                <span>Administrator</span>
+            </div>
+
+            <span class="user-menu">•••</span>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="topbar">
+
+            <div class="breadcrumb">
+                Workspace /
+                <strong>
+                    {% block breadcrumb %}Dashboard{% endblock %}
+                </strong>
+            </div>
+
+            <div class="top-actions">
+
+                <button class="icon-button">
+                    🔔
+                    <span class="notification-dot"></span>
+                </button>
+
+                <div class="profile">
+
+                    <div class="profile-avatar">
+                        K
+                    </div>
+
+                    <div>
+                        <strong>Khushi</strong>
+                        <span>Admin</span>
+                    </div>
+
+                    <span>⌄</span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+        <section class="content">
+
+            {% block content %}
+            {% endblock %}
+
+        </section>
+
+    </main>
+
+</div>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

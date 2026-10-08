@@ -1,0 +1,417 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+Dashboard | PolicyGuard AI
+{% endblock %}
+
+{% block breadcrumb %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<div class="welcome">
+
+    <div>
+        <div class="eyebrow">
+            POLICY INTELLIGENCE
+        </div>
+
+        <h2>
+            Good afternoon, Khushi 👋
+        </h2>
+
+        <p>
+            Monitor your policies, evaluate compliance,
+            and get grounded answers with AI.
+        </p>
+    </div>
+
+    <a href="{% url 'upload_policy' %}"
+       class="primary-button">
+        + Upload Policy
+    </a>
+
+</div>
+
+
+<!-- STAT CARDS -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+            <div class="stat-icon blue">▣</div>
+            <span class="trend positive">↑ 12%</span>
+        </div>
+
+        <div class="stat-number">
+            {{ policy_count }}
+        </div>
+
+        <div class="stat-label">
+            Active Policies
+        </div>
+
+        <div class="stat-footer">
+            Across 5 policy categories
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+            <div class="stat-icon purple">✓</div>
+            <span class="trend positive">↑ 8%</span>
+        </div>
+
+        <div class="stat-number">
+            {{ compliance_checks }}
+        </div>
+
+        <div class="stat-label">
+            Compliance Checks
+        </div>
+
+        <div class="stat-footer">
+            Completed this month
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+            <div class="stat-icon green">✦</div>
+            <span class="trend positive">Excellent</span>
+        </div>
+
+        <div class="stat-number">
+            {{ grounded_score }}%
+        </div>
+
+        <div class="stat-label">
+            Grounded Responses
+        </div>
+
+        <div class="stat-footer">
+            Answers backed by policy sources
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+            <div class="stat-icon orange">⚠</div>
+            <span class="trend warning">2 need review</span>
+        </div>
+
+        <div class="stat-number">
+            3
+        </div>
+
+        <div class="stat-label">
+            Open Reviews
+        </div>
+
+        <div class="stat-footer">
+            Awaiting compliance decision
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- QUICK ACTIONS -->
+
+<div class="section-heading">
+
+    <div>
+        <h3>Quick Actions</h3>
+        <p>Start working with your policy knowledge base.</p>
+    </div>
+
+</div>
+
+
+<div class="actions-grid">
+
+    <div class="action-card">
+
+        <div class="action-icon upload">
+            ↑
+        </div>
+
+        <div class="action-content">
+
+            <h4>Upload a Policy</h4>
+
+            <p>
+                Add a PDF policy document to your knowledge base.
+            </p>
+
+            <a href="{% url 'upload_policy' %}">
+                Upload PDF →
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="action-card">
+
+        <div class="action-icon ask">
+            ✦
+        </div>
+
+        <div class="action-content">
+
+            <h4>Ask PolicyGuard AI</h4>
+
+            <p>
+                Ask questions and receive answers with citations.
+            </p>
+
+            <a href="#">
+                Start asking →
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="action-card">
+
+        <div class="action-icon check">
+            ✓
+        </div>
+
+        <div class="action-content">
+
+            <h4>Check Compliance</h4>
+
+            <p>
+                Determine whether an action complies with policy.
+            </p>
+
+            <a href="#">
+                Run a check →
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- LOWER GRID -->
+
+<div class="dashboard-grid">
+
+
+    <!-- RECENT POLICIES -->
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h3>Recent Policies</h3>
+                <p>Your latest policy documents.</p>
+            </div>
+
+            <a href="{% url 'policies' %}">
+                View all →
+            </a>
+
+        </div>
+
+
+        <div class="policy-list">
+
+            {% for policy in recent_policies %}
+
+            <div class="policy-row">
+
+                <div class="document-icon">
+                    PDF
+                </div>
+
+                <div class="policy-details">
+
+                    <strong>
+                        {{ policy.name }}
+                    </strong>
+
+                    <span>
+                        {{ policy.type }}
+                        • {{ policy.updated }}
+                    </span>
+
+                </div>
+
+                <div class="status active-status">
+                    <span></span>
+                    Active
+                </div>
+
+                <button class="more-button">
+                    •••
+                </button>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- COMPLIANCE -->
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h3>Compliance Activity</h3>
+                <p>Recent AI evaluations.</p>
+            </div>
+
+            <a href="#">
+                View all →
+            </a>
+
+        </div>
+
+
+        <div class="activity-list">
+
+            <div class="activity">
+
+                <div class="activity-status compliant">
+                    ✓
+                </div>
+
+                <div class="activity-content">
+
+                    <strong>
+                        Hotel expense approval
+                    </strong>
+
+                    <span>
+                        Compliance check • 5 min ago
+                    </span>
+
+                </div>
+
+                <div class="risk low">
+                    COMPLIANT
+                </div>
+
+            </div>
+
+
+            <div class="activity">
+
+                <div class="activity-status review">
+                    !
+                </div>
+
+                <div class="activity-content">
+
+                    <strong>
+                        Gift policy threshold
+                    </strong>
+
+                    <span>
+                        Compliance check • 1 hour ago
+                    </span>
+
+                </div>
+
+                <div class="risk medium">
+                    REVIEW
+                </div>
+
+            </div>
+
+
+            <div class="activity">
+
+                <div class="activity-status compliant">
+                    ✓
+                </div>
+
+                <div class="activity-content">
+
+                    <strong>
+                        Remote work request
+                    </strong>
+
+                    <span>
+                        Compliance check • 3 hours ago
+                    </span>
+
+                </div>
+
+                <div class="risk low">
+                    COMPLIANT
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- AI BANNER -->
+
+<div class="ai-banner">
+
+    <div class="ai-content">
+
+        <div class="ai-symbol">
+            ✦
+        </div>
+
+        <div>
+
+            <span class="ai-label">
+                POLICYGUARD AI
+            </span>
+
+            <h3>
+                Need an answer from your policies?
+            </h3>
+
+            <p>
+                Ask natural-language questions and get
+                evidence-backed answers with page-level citations.
+            </p>
+
+        </div>
+
+    </div>
+
+    <a href="#" class="ai-button">
+        Ask AI →
+    </a>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+Upload Policy | PolicyGuard AI
+{% endblock %}
+
+{% block breadcrumb %}
+Policies / Upload
+{% endblock %}
+
+{% block content %}
+
+<div class="welcome">
+
+    <div>
+        <div class="eyebrow">
+            KNOWLEDGE BASE
+        </div>
+
+        <h2>
+            Upload Policy
+        </h2>
+
+        <p>
+            Add a PDF document to your PolicyGuard AI knowledge base.
+        </p>
+    </div>
+
+</div>
+
+
+<div class="upload-container">
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+        class="upload-box"
+    >
+
+        {% csrf_token %}
+
+        <div class="upload-icon">
+            ↑
+        </div>
+
+        <h3>
+            Upload your policy document
+        </h3>
+
+        <p>
+            Select a PDF policy document to add it to your
+            PolicyGuard knowledge base.
+        </p>
+
+
+        {% if error %}
+
+        <div class="upload-error">
+            {{ error }}
+        </div>
+
+        {% endif %}
+
+
+        <label class="upload-button">
+
+            Choose PDF
+
+            <input
+                type="file"
+                name="policy_file"
+                accept=".pdf,application/pdf"
+                required
+                hidden
+            >
+
+        </label>
+
+
+        <div id="selected-file"
+             class="selected-file">
+        </div>
+
+
+        <button
+            type="submit"
+            class="primary-button upload-submit"
+        >
+            Upload Policy
+        </button>
+
+
+        <span class="upload-help">
+            PDF files only • Maximum 20 MB
+        </span>
+
+    </form>
+
+</div>
+
+
+<script>
+
+const fileInput = document.querySelector(
+    'input[name="policy_file"]'
+);
+
+const selectedFile = document.getElementById(
+    "selected-file"
+);
+
+fileInput.addEventListener(
+    "change",
+    function () {
+
+        if (this.files.length > 0) {
+
+            selectedFile.textContent =
+                "Selected: " + this.files[0].name;
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}
