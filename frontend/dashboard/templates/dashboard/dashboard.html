@@ -413,5 +413,64 @@ Dashboard
     </a>
 
 </div>
+<section class="policy-evaluation">
+    <h2>Policy Compliance Evaluation</h2>
 
+    <textarea
+        id="scenario"
+        rows="4"
+        placeholder="Describe a scenario to evaluate..."
+    ></textarea>
+
+    <button type="button" id="evaluate-btn">
+        Evaluate Policy
+    </button>
+
+    <pre id="evaluation-result"></pre>
+</section>
+
+<script>
+document.getElementById("evaluate-btn").addEventListener("click", async () => {
+    const scenario = document.getElementById("scenario").value.trim();
+    const output = document.getElementById("evaluation-result");
+
+    if (!scenario) {
+        output.textContent = "Please enter a scenario.";
+        return;
+    }
+
+    output.textContent = "Evaluating...";
+
+    try {
+        const response = await fetch("/evaluate-policy/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify({scenario})
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Evaluation failed.");
+        }
+
+        output.textContent = JSON.stringify(result, null, 2);
+    } catch (error) {
+        output.textContent = error.message;
+    }
+});
+
+function getCookie(name) {
+    const cookie = document.cookie
+        .split("; ")
+        .find(row => row.startsWith(name + "="));
+
+    return cookie
+        ? decodeURIComponent(cookie.split("=")[1])
+        : "";
+}
+</script>
 {% endblock %}

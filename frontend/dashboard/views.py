@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 
 from .models import Policy
 
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 if str(PROJECT_ROOT) not in sys.path:
@@ -16,6 +17,10 @@ if str(PROJECT_ROOT) not in sys.path:
 from backend.app.rag.ingestion import extract_pdf_pages
 from backend.app.rag.chunking import chunk_pages
 from backend.app.rag.vector_store import add_chunks
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from backend.app.api.chat import evaluate_policy
 
 
 def dashboard(request):
@@ -248,3 +253,26 @@ def upload_policy(request):
             "active_page": "policies",
         },
     )
+
+@require_POST
+def evaluate_policy_view(request):
+    try:
+        data = json.loads(request.body)
+        scenario = data.get("scenario", "").strip()
+
+        if not scenario:
+            return JsonResponse(
+                {"error": "Please enter a scenario."},
+                status=400,
+            )
+
+        result = evaluate_policy(scenario)
+        return JsonResponse(result)
+
+    except (ValueError, json.JSONDecodeError) as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+    except Exception:
+        return JsonResponse(
+            {"error": "Evaluation failed. Check the Django server logs."},
+            status=500,
+        )

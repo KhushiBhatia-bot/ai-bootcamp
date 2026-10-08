@@ -9,4 +9,9 @@ urlpatterns = [
         views.upload_policy,
         name="upload_policy"
     ),
+    path(
+    "evaluate-policy/",
+    views.evaluate_policy_view,
+    name="evaluate_policy",
+    ),
 ]
