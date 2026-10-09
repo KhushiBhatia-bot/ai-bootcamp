@@ -14,4 +14,5 @@ urlpatterns = [
     views.evaluate_policy_view,
     name="evaluate_policy",
     ),
+    path("evaluation-history/", views.evaluation_history, name="evaluation_history"),
 ]

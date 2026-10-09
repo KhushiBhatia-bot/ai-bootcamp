@@ -8,6 +8,9 @@ from django.shortcuts import redirect, render
 
 from .models import Policy
 from dashboard.models import PolicyEvaluation
+from django.shortcuts import render
+from django.db.models import Q
+from dashboard.models import PolicyEvaluation
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -285,3 +288,39 @@ def evaluate_policy_view(request):
             {"error": "Evaluation failed. Check the Django server logs."},
             status=500,
         )
+    
+def evaluation_history(request):
+    evaluations = PolicyEvaluation.objects.all()
+
+    search_query = request.GET.get("q", "").strip()
+    status_filter = request.GET.get("status", "").strip().upper()
+
+    if search_query:
+        evaluations = evaluations.filter(
+            Q(scenario__icontains=search_query)
+            | Q(reason__icontains=search_query)
+            | Q(claimed_policy__icontains=search_query)
+        )
+
+    valid_statuses = {
+        "COMPLIANT",
+        "NON_COMPLIANT",
+        "NEEDS_REVIEW",
+    }
+
+    if status_filter in valid_statuses:
+        evaluations = evaluations.filter(status=status_filter)
+
+    context = {
+        "evaluations": evaluations,
+        "search_query": search_query,
+        "status_filter": status_filter,
+        "total_count": PolicyEvaluation.objects.count(),
+        "active_page": "evaluation_history",
+    }
+
+    return render(
+        request,
+        "dashboard/evaluation_history.html",
+        context,
+    )

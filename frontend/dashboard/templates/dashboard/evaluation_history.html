@@ -1,0 +1,94 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+
+<link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+{% block content %}
+<section class="evaluation-card">
+    <div class="evaluation-header">
+        <div>
+            <span class="evaluation-eyebrow">POLICYGUARD AI</span>
+            <h2>Evaluation History</h2>
+            <p>Review previous policy compliance decisions and their supporting evidence.</p>
+        </div>
+    </div>
+
+    <p><strong>Total evaluations:</strong> {{ total_count }}</p>
+
+    <form method="get" class="history-filters">
+        <input
+            type="search"
+            name="q"
+            value="{{ search_query }}"
+            placeholder="Search scenarios, reasons or policies..."
+            aria-label="Search evaluations"
+        >
+
+        <select name="status" aria-label="Filter by status">
+            <option value="">All statuses</option>
+            <option value="COMPLIANT"
+                {% if status_filter == "COMPLIANT" %}selected{% endif %}>
+                Compliant
+            </option>
+            <option value="NON_COMPLIANT"
+                {% if status_filter == "NON_COMPLIANT" %}selected{% endif %}>
+                Non-compliant
+            </option>
+            <option value="NEEDS_REVIEW"
+                {% if status_filter == "NEEDS_REVIEW" %}selected{% endif %}>
+                Needs review
+            </option>
+        </select>
+
+        <button type="submit" class="evaluate-button">Search</button>
+        <a href="{% url 'evaluation_history' %}">Clear filters</a>
+    </form>
+
+    {% for item in evaluations %}
+        <article class="history-item">
+            <div class="history-item-header">
+                <span class="result-status
+                    {% if item.status == 'COMPLIANT' %}status-compliant
+                    {% elif item.status == 'NON_COMPLIANT' %}status-non-compliant
+                    {% else %}status-review{% endif %}">
+                    {{ item.status|cut:"_" }}
+                </span>
+
+                <span class="result-policy">
+                    {{ item.created_at|date:"d M Y, H:i" }}
+                </span>
+            </div>
+
+            <h3>Scenario</h3>
+            <p>{{ item.scenario }}</p>
+
+            <h3>Reason</h3>
+            <p>{{ item.reason }}</p>
+
+            <p class="result-policy">
+                Policy: {{ item.claimed_policy|default:"Not specified" }}
+                · Page: {{ item.claimed_page|default:"Not specified" }}
+            </p>
+
+            {% if item.evidence %}
+                <details>
+                    <summary>View supporting evidence ({{ item.evidence|length }} chunks)</summary>
+
+                    {% for source in item.evidence %}
+                        <div class="evidence-item">
+                            <strong>
+                                {{ source.policy|default:"Policy document" }}
+                                · Page {{ source.page|default:"Unknown" }}
+                            </strong>
+                            <p>{{ source.text }}</p>
+                        </div>
+                    {% endfor %}
+                </details>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>No evaluations found. Submit a policy evaluation or change your search filters.</p>
+    {% endfor %}
+</section>
+{% endblock %}
+

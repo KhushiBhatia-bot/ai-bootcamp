@@ -64,7 +64,12 @@ def evaluate_policy(scenario: str) -> dict:
         return {
             "scenario": scenario,
             "status": "NEEDS_REVIEW",
-            "reason": "No relevant policy evidence was retrieved.",
+            "reason": (
+                "No sufficiently relevant policy evidence was found. "
+                "Review the applicable policy manually."
+            ),
+            "claimed_policy": "",
+            "claimed_page": "",
             "evidence": [],
             "retrieved_chunks": 0,
         }
@@ -127,13 +132,17 @@ Rules:
 
     # Return retrieved evidence as well as the model's claimed citation.
     sources = [
-        {
-            "policy": chunk.get("policy_name"),
-            "page": chunk.get("page"),
-            "text": chunk.get("text", "")[:300],
-        }
-        for chunk in chunks
-    ]
+    {
+        "policy": chunk.get("policy_name"),
+        "page": chunk.get("page"),
+        "text": chunk.get("text", "")[:300],
+        "similarity_score": round(
+            float(chunk.get("similarity_score", 0.0)), 3
+        ),
+        "distance": round(float(chunk.get("distance", 0.0)), 3),
+    }
+    for chunk in chunks
+]
 
     return {
         "scenario": scenario,

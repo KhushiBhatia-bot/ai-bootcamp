@@ -1,0 +1,26 @@
+[
+    {
+      "id": "TC001",
+      "scenario": "An employee uploads confidential customer data to a personal cloud drive.",
+      "expected_status": "NON_COMPLIANT",
+      "expected_policy_topic": "confidential data"
+    },
+    {
+      "id": "TC002",
+      "scenario": "An employee enables multi-factor authentication for their work email.",
+      "expected_status": "COMPLIANT",
+      "expected_policy_topic": "multi-factor authentication"
+    },
+    {
+      "id": "TC003",
+      "scenario": "A contractor requests access, but approval has not been confirmed.",
+      "expected_status": "NEEDS_REVIEW",
+      "expected_policy_topic": "access control"
+    },
+    {
+      "id": "TC004",
+      "scenario": "An employee discovers a lost company laptop and waits until the next day to report it.",
+      "expected_status": "NON_COMPLIANT",
+      "expected_policy_topic": "security incident reporting"
+    }
+  ]
