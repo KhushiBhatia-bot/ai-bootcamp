@@ -12,6 +12,41 @@
           href="{% static 'dashboard/css/style.css' %}">
 
     {% block extra_css %}{% endblock %}
+    <style>
+        .user-menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .logout-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 8px 0;
+            min-width: 120px;
+            z-index: 1000;
+        }
+        .logout-dropdown a {
+            display: block;
+            padding: 8px 16px;
+            color: #ef4444;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .logout-dropdown a:hover {
+            background: #fef2f2;
+        }
+        .user-menu-container:hover .logout-dropdown {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
@@ -48,23 +83,19 @@
                     Policies
                 </a>
 
-                <a href="#"
+                <a href="{% url 'ask_ai' %}"
                    class="nav-item {% if active_page == 'chat' %}active{% endif %}">
                     <span>◈</span>
                     Ask AI
                 </a>
 
-                <a href="#"
+                <a href="{% url 'compliance' %}"
                    class="nav-item {% if active_page == 'compliance' %}active{% endif %}">
                     <span>✓</span>
                     Compliance
                 </a>
 
-                <a href="#"
-                   class="nav-item {% if active_page == 'analytics' %}active{% endif %}">
-                    <span>▥</span>
-                    Analytics
-                </a>
+
                 <a href="{% url 'evaluation_history' %}"
                 class="nav-item {% if active_page == 'evaluation_history' %}active{% endif %}">
                     <span>▤</span>
@@ -72,28 +103,13 @@
                 </a>
                 <a href="{% url 'monitoring' %}"
                 class="nav-item {% if active_page == 'monitoring' %}active{% endif %}">
+                    <span>⏱</span>
                     Performance Monitoring
                 </a>
 
             </div>
 
-            <div class="nav-section bottom-nav">
 
-                <span class="nav-label">SYSTEM</span>
-
-                <a href="#"
-                   class="nav-item">
-                    <span>⚙</span>
-                    Settings
-                </a>
-
-                <a href="#"
-                   class="nav-item">
-                    <span>?</span>
-                    Help & Support
-                </a>
-
-            </div>
 
         </nav>
 
@@ -108,7 +124,12 @@
                 <span>Administrator</span>
             </div>
 
-            <span class="user-menu">•••</span>
+            <div class="user-menu-container" style="padding: 10px;">
+                <span class="user-menu">•••</span>
+                <div class="logout-dropdown">
+                    <a href="{% url 'login' %}">Logout</a>
+                </div>
+            </div>
 
         </div>
 

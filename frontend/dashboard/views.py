@@ -31,29 +31,37 @@ from django.views.decorators.http import require_POST
 from backend.app.api.chat import evaluate_policy
 
 
+def home(request):
+    return render(request, "dashboard/home.html")
+
 def dashboard(request):
+    policy_count = Policy.objects.count()
+    compliance_checks = PolicyEvaluation.objects.count()
+    open_reviews = PolicyEvaluation.objects.filter(status="NEEDS_REVIEW").count()
+
+    total_metrics = RequestMetric.objects.count()
+    success_metrics = RequestMetric.objects.filter(success=True).count()
+    if total_metrics > 0:
+        grounded_score = int((success_metrics / total_metrics) * 100)
+    else:
+        grounded_score = 100
+
+    recent_policies_qs = Policy.objects.order_by("-created_at")[:3]
+    recent_policies = []
+    for p in recent_policies_qs:
+        recent_policies.append({
+            "name": p.name,
+            "type": p.category,
+            "updated": p.updated_at.strftime("%b %d, %Y"),
+        })
+
     context = {
         "active_page": "dashboard",
-        "policy_count": 12,
-        "compliance_checks": 8,
-        "grounded_score": 94,
-        "recent_policies": [
-            {
-                "name": "Information Security Policy",
-                "type": "Security",
-                "updated": "2 hours ago",
-            },
-            {
-                "name": "Expense & Travel Policy",
-                "type": "Finance",
-                "updated": "Yesterday",
-            },
-            {
-                "name": "Employee Leave Policy",
-                "type": "HR",
-                "updated": "3 days ago",
-            },
-        ],
+        "policy_count": policy_count,
+        "compliance_checks": compliance_checks,
+        "grounded_score": grounded_score,
+        "open_reviews": open_reviews,
+        "recent_policies": recent_policies,
     }
 
     return render(
@@ -367,3 +375,27 @@ def monitoring_dashboard(request):
         "dashboard/monitoring.html",
         context,
     )
+
+def ask_ai(request):
+    return render(
+        request,
+        "dashboard/ask_ai.html",
+        {
+            "active_page": "chat",
+        },
+    )
+
+def compliance(request):
+    return render(
+        request,
+        "dashboard/compliance.html",
+        {
+            "active_page": "compliance",
+        },
+    )
+
+def login_view(request):
+    return render(request, "dashboard/login.html")
+
+def signup_view(request):
+    return render(request, "dashboard/signup.html")

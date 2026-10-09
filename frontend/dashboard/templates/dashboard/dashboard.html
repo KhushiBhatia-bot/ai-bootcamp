@@ -109,11 +109,11 @@ Dashboard
 
         <div class="stat-top">
             <div class="stat-icon orange">⚠</div>
-            <span class="trend warning">2 need review</span>
+            <span class="trend warning">{{ open_reviews }} need review</span>
         </div>
 
         <div class="stat-number">
-            3
+            {{ open_reviews }}
         </div>
 
         <div class="stat-label">
@@ -180,7 +180,7 @@ Dashboard
                 Ask questions and receive answers with citations.
             </p>
 
-            <a href="#">
+            <a href="{% url 'ask_ai' %}">
                 Start asking →
             </a>
 
@@ -203,7 +203,7 @@ Dashboard
                 Determine whether an action complies with policy.
             </p>
 
-            <a href="#">
+            <a href="{% url 'compliance' %}">
                 Run a check →
             </a>
 
@@ -408,327 +408,12 @@ Dashboard
 
     </div>
 
-    <a href="#" class="ai-button">
+    <a href="{% url 'ask_ai' %}" class="ai-button">
         Ask AI →
     </a>
 
 </div>
 
-<section class="evaluation-card">
-    <div class="evaluation-header">
-        <div>
-            <span class="evaluation-eyebrow">AI-POWERED POLICY ANALYSIS</span>
-            <h2>Policy Compliance Evaluation</h2>
-            <p>Evaluate a workplace scenario against your uploaded security policies.</p>
-        </div>
-        <div class="evaluation-icon">✓</div>
-    </div>
 
-    <label for="scenario">Describe your scenario</label>
-    <textarea
-        id="scenario"
-        rows="4"
-        placeholder="Example: An employee uploads confidential customer data to a personal cloud drive."
-    ></textarea>
-
-    <button type="button" id="evaluate-btn" class="evaluate-button">
-        Evaluate Policy →
-    </button>
-
-    <p id="evaluation-loading" class="evaluation-loading" hidden>
-        Analyzing your scenario against policy evidence...
-    </p>
-
-    <div id="evaluation-result" class="evaluation-result" hidden></div>
-</section>
-
-<style>
-.evaluation-card {
-    margin: 28px 0;
-    padding: 28px;
-    background: var(--card-bg, #ffffff);
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: 18px;
-    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
-    color: var(--text-color, #172033);
-}
-
-.evaluation-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.evaluation-eyebrow {
-    color: #6366f1;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1.4px;
-}
-
-.evaluation-header h2 {
-    margin: 8px 0;
-    font-size: 24px;
-    font-weight: 750;
-}
-
-.evaluation-header p {
-    margin: 0;
-    color: var(--muted-color, #64748b);
-    line-height: 1.6;
-}
-
-.evaluation-icon {
-    display: grid;
-    place-items: center;
-    min-width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    background: #eef2ff;
-    color: #4f46e5;
-    font-size: 24px;
-    font-weight: 800;
-}
-
-.evaluation-card label {
-    display: block;
-    margin-bottom: 9px;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.evaluation-card textarea {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 14px 16px;
-    border: 1px solid var(--border-color, #dbe1ea);
-    border-radius: 12px;
-    background: var(--input-bg, #ffffff);
-    color: var(--text-color, #172033);
-    font: inherit;
-    line-height: 1.6;
-    resize: vertical;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.evaluation-card textarea:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.13);
-}
-
-.evaluate-button {
-    margin-top: 16px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    background: #4f46e5;
-    color: white;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
-}
-
-.evaluate-button:hover {
-    background: #4338ca;
-    transform: translateY(-1px);
-}
-
-.evaluate-button:disabled {
-    opacity: 0.65;
-    cursor: wait;
-    transform: none;
-}
-
-.evaluation-loading {
-    margin-top: 18px;
-    color: var(--muted-color, #64748b);
-    font-size: 14px;
-}
-
-.evaluation-result {
-    margin-top: 24px;
-    padding-top: 22px;
-    border-top: 1px solid var(--border-color, #e5e7eb);
-}
-
-.result-status {
-    display: inline-block;
-    padding: 7px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.4px;
-}
-
-.status-compliant {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.status-non-compliant {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.status-review {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.result-reason {
-    margin: 14px 0;
-    line-height: 1.7;
-}
-
-.result-policy {
-    color: var(--muted-color, #64748b);
-    font-size: 13px;
-}
-
-.evidence-title {
-    margin: 22px 0 12px;
-    font-size: 16px;
-    font-weight: 750;
-}
-
-.evidence-item {
-    margin-top: 10px;
-    padding: 14px;
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: 10px;
-    background: var(--evidence-bg, #f8fafc);
-}
-
-.evidence-item strong {
-    font-size: 13px;
-}
-
-.evidence-item p {
-    margin: 8px 0 0;
-    color: var(--muted-color, #64748b);
-    font-size: 13px;
-    line-height: 1.7;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-}
-
-@media (max-width: 600px) {
-    .evaluation-card {
-        padding: 18px;
-    }
-
-    .evaluation-header h2 {
-        font-size: 20px;
-    }
-}
-</style>
-
-<script>
-(() => {
-    const button = document.getElementById("evaluate-btn");
-    const scenarioInput = document.getElementById("scenario");
-    const resultBox = document.getElementById("evaluation-result");
-    const loading = document.getElementById("evaluation-loading");
-
-    if (!button || button.dataset.initialized === "true") return;
-    button.dataset.initialized = "true";
-
-    button.addEventListener("click", async () => {
-        const scenario = scenarioInput.value.trim();
-
-        if (!scenario) {
-            scenarioInput.focus();
-            resultBox.hidden = false;
-            resultBox.textContent = "Please describe a scenario first.";
-            return;
-        }
-
-        button.disabled = true;
-        loading.hidden = false;
-        resultBox.hidden = true;
-        resultBox.replaceChildren();
-
-        try {
-            const csrfCookie = document.cookie
-                .split("; ")
-                .find(row => row.startsWith("csrftoken="));
-
-            const response = await fetch("/evaluate-policy/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrfCookie
-                        ? decodeURIComponent(csrfCookie.split("=")[1])
-                        : ""
-                },
-                body: JSON.stringify({ scenario })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Policy evaluation failed.");
-            }
-
-            const status = data.status || "NEEDS_REVIEW";
-            const statusClass = {
-                "COMPLIANT": "status-compliant",
-                "NON_COMPLIANT": "status-non-compliant",
-                "NEEDS_REVIEW": "status-review"
-            }[status] || "status-review";
-
-            const badge = document.createElement("span");
-            badge.className = `result-status ${statusClass}`;
-            badge.textContent = status.replaceAll("_", " ");
-            resultBox.appendChild(badge);
-
-            const reason = document.createElement("p");
-            reason.className = "result-reason";
-            reason.textContent = data.reason || "No explanation provided.";
-            resultBox.appendChild(reason);
-
-            const policy = document.createElement("p");
-            policy.className = "result-policy";
-            policy.textContent =
-                `Policy: ${data.claimed_policy || "Not specified"} · Page: ${data.claimed_page ?? "Not specified"}`;
-            resultBox.appendChild(policy);
-
-            if (Array.isArray(data.evidence) && data.evidence.length) {
-                const title = document.createElement("h3");
-                title.className = "evidence-title";
-                title.textContent = `Supporting Evidence (${data.evidence.length} chunks)`;
-                resultBox.appendChild(title);
-
-                data.evidence.forEach(item => {
-                    const card = document.createElement("div");
-                    card.className = "evidence-item";
-
-                    const heading = document.createElement("strong");
-                    heading.textContent =
-                        `${item.policy || "Policy document"} · Page ${item.page ?? "Unknown"}`;
-
-                    const excerpt = document.createElement("p");
-                    excerpt.textContent = item.text || "No excerpt available.";
-
-                    card.append(heading, excerpt);
-                    resultBox.appendChild(card);
-                });
-            }
-
-            resultBox.hidden = false;
-        } catch (error) {
-            resultBox.hidden = false;
-            resultBox.textContent = `Error: ${error.message}`;
-        } finally {
-            loading.hidden = true;
-            button.disabled = false;
-        }
-    });
-})();
-</script>
 
 {% endblock %}

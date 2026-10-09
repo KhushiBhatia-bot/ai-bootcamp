@@ -47,3 +47,13 @@ Respond with:
 If the retrieved passages do not establish the answer, use
 INSUFFICIENT_EVIDENCE.
 """
+
+def build_hyde_prompt(question: str) -> str:
+    """Build a prompt to generate a hypothetical policy excerpt that answers the question."""
+    return f"""You are a corporate policy expert. 
+Write a hypothetical, highly relevant excerpt from an official corporate policy document that perfectly addresses the following user scenario or question. 
+Write it in the formal tone of a policy document. Do not include any introductory or concluding remarks, just the hypothetical policy text itself.
+
+User Request:
+{question}
+"""

@@ -1,0 +1,414 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+Ask AI | PolicyGuard AI
+{% endblock %}
+
+{% block breadcrumb %}
+Ask AI
+{% endblock %}
+
+{% block content %}
+<section class="evaluation-card premium-card">
+    <div class="evaluation-header">
+        <div>
+            <span class="evaluation-eyebrow">AI-POWERED POLICY ANALYSIS</span>
+            <h2>Policy Compliance Evaluation</h2>
+            <p>Evaluate a workplace scenario against your uploaded security policies.</p>
+        </div>
+        <div class="evaluation-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+        </div>
+    </div>
+
+    <label for="scenario">Describe your scenario</label>
+    <textarea
+        id="scenario"
+        rows="5"
+        placeholder="Example: An employee uploads confidential customer data to a personal cloud drive."
+    ></textarea>
+
+    <div class="quick-prompts">
+        <span class="prompt-pill">What is the policy for working from home?</span>
+        <span class="prompt-pill">How much can I expense for a business dinner?</span>
+        <span class="prompt-pill">Can I upload customer data to my personal cloud?</span>
+    </div>
+
+    <button type="button" id="evaluate-btn" class="evaluate-button">
+        Evaluate Policy <span class="arrow">→</span>
+    </button>
+
+    <div id="evaluation-loading" class="evaluation-loading" hidden>
+        <div class="spinner"></div>
+        <span>Analyzing your scenario against policy evidence...</span>
+    </div>
+
+    <div id="evaluation-result" class="evaluation-result" hidden></div>
+</section>
+
+<style>
+/* Improved CSS for Ask AI / Evaluation Policy */
+.premium-card {
+    background: linear-gradient(145deg, #ffffff, #fdfdff);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 12px 40px -10px rgba(15, 23, 42, 0.08);
+    border-radius: 20px;
+    padding: 32px;
+    margin: 28px 0;
+    transition: box-shadow 0.3s ease;
+}
+
+.premium-card:hover {
+    box-shadow: 0 16px 50px -10px rgba(15, 23, 42, 0.12);
+}
+
+.evaluation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.evaluation-eyebrow {
+    color: #6366f1;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.evaluation-header h2 {
+    margin: 8px 0;
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+}
+
+.evaluation-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.evaluation-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.premium-card label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.premium-card textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 15px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: all 0.25s ease;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.premium-card textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+.quick-prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.prompt-pill {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.prompt-pill:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-color: #cbd5e1;
+}
+
+.evaluate-button {
+    margin-top: 20px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+.evaluate-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+}
+
+.evaluate-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.arrow {
+    transition: transform 0.2s;
+}
+
+.evaluate-button:hover .arrow {
+    transform: translateX(4px);
+}
+
+.evaluation-loading {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.evaluation-result {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Status Badges */
+.result-status {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.status-compliant { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.status-non-compliant { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+.status-review { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+
+.result-reason {
+    margin: 16px 0;
+    font-size: 15px;
+    color: #334155;
+    line-height: 1.7;
+}
+
+.result-policy {
+    display: inline-block;
+    background: #f1f5f9;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.evidence-title {
+    margin: 28px 0 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.evidence-item {
+    margin-top: 12px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.evidence-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.evidence-item strong {
+    display: block;
+    font-size: 13px;
+    color: #0f172a;
+    margin-bottom: 6px;
+}
+
+.evidence-item p {
+    margin: 0;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+    .premium-card {
+        padding: 20px;
+    }
+
+    .evaluation-header h2 {
+        font-size: 22px;
+    }
+}
+</style>
+
+<script>
+(() => {
+    const button = document.getElementById("evaluate-btn");
+    const scenarioInput = document.getElementById("scenario");
+    const resultBox = document.getElementById("evaluation-result");
+    const loading = document.getElementById("evaluation-loading");
+
+    if (!button || button.dataset.initialized === "true") return;
+    button.dataset.initialized = "true";
+
+    document.querySelectorAll(".prompt-pill").forEach(pill => {
+        pill.addEventListener("click", () => {
+            scenarioInput.value = pill.textContent;
+            scenarioInput.focus();
+        });
+    });
+
+    button.addEventListener("click", async () => {
+        const scenario = scenarioInput.value.trim();
+
+        if (!scenario) {
+            scenarioInput.focus();
+            resultBox.hidden = false;
+            resultBox.textContent = "Please describe a scenario first.";
+            return;
+        }
+
+        button.disabled = true;
+        loading.hidden = false;
+        resultBox.hidden = true;
+        resultBox.replaceChildren();
+
+        try {
+            const csrfCookie = document.cookie
+                .split("; ")
+                .find(row => row.startsWith("csrftoken="));
+
+            const response = await fetch("/evaluate-policy/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfCookie
+                        ? decodeURIComponent(csrfCookie.split("=")[1])
+                        : ""
+                },
+                body: JSON.stringify({ scenario })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Policy evaluation failed.");
+            }
+
+            const status = data.status || "NEEDS_REVIEW";
+            const statusClass = {
+                "COMPLIANT": "status-compliant",
+                "NON_COMPLIANT": "status-non-compliant",
+                "NEEDS_REVIEW": "status-review"
+            }[status] || "status-review";
+
+            const badge = document.createElement("span");
+            badge.className = `result-status ${statusClass}`;
+            badge.textContent = status.replaceAll("_", " ");
+            resultBox.appendChild(badge);
+
+            const reason = document.createElement("p");
+            reason.className = "result-reason";
+            reason.textContent = data.reason || "No explanation provided.";
+            resultBox.appendChild(reason);
+
+            const policy = document.createElement("p");
+            policy.className = "result-policy";
+            policy.textContent =
+                `Policy: ${data.claimed_policy || "Not specified"} · Page: ${data.claimed_page ?? "Not specified"}`;
+            resultBox.appendChild(policy);
+
+            if (Array.isArray(data.evidence) && data.evidence.length) {
+                const title = document.createElement("h3");
+                title.className = "evidence-title";
+                title.textContent = `Supporting Evidence (${data.evidence.length} chunks)`;
+                resultBox.appendChild(title);
+
+                data.evidence.forEach(item => {
+                    const card = document.createElement("div");
+                    card.className = "evidence-item";
+
+                    const heading = document.createElement("strong");
+                    heading.textContent =
+                        `${item.policy || "Policy document"} · Page ${item.page ?? "Unknown"}`;
+
+                    const excerpt = document.createElement("p");
+                    excerpt.textContent = item.text || "No excerpt available.";
+
+                    card.append(heading, excerpt);
+                    resultBox.appendChild(card);
+                });
+            }
+
+            resultBox.hidden = false;
+        } catch (error) {
+            resultBox.hidden = false;
+            resultBox.textContent = `Error: ${error.message}`;
+        } finally {
+            loading.hidden = true;
+            button.disabled = false;
+        }
+    });
+})();
+</script>
+{% endblock %}

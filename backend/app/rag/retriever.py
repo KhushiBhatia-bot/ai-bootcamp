@@ -10,9 +10,12 @@ def search_policy(
     query: str,
     top_k: int = 5,
     max_distance: float | None = None,
+    hyde_document: str | None = None,
 ) -> list[dict]:
     """Retrieve policy chunks using vector similarity."""
     query = query.strip()
+    if hyde_document:
+        hyde_document = hyde_document.strip()
 
     if not query or top_k < 1:
         return []
@@ -30,7 +33,8 @@ def search_policy(
         except ValueError:
             max_distance = 400.0
 
-    embedding = generate_embedding(query)
+    text_to_embed = hyde_document if hyde_document else query
+    embedding = generate_embedding(text_to_embed)
 
     results = collection.query(
         query_embeddings=[embedding],
@@ -72,9 +76,12 @@ def search_policy_hybrid(
     query: str,
     top_k: int = 5,
     candidate_limit: int = 50,
+    hyde_document: str | None = None,
 ) -> list[dict]:
     """Combine vector and keyword rankings using RRF."""
     query = query.strip()
+    if hyde_document:
+        hyde_document = hyde_document.strip()
 
     if not query or top_k < 1 or candidate_limit < 1:
         return []
@@ -84,8 +91,9 @@ def search_policy_hybrid(
     if total_chunks == 0:
         return []
 
+    text_to_embed = hyde_document if hyde_document else query
     vector_results = collection.query(
-        query_embeddings=[generate_embedding(query)],
+        query_embeddings=[generate_embedding(text_to_embed)],
         n_results=min(candidate_limit, total_chunks),
         include=["documents", "metadatas", "distances"],
     )

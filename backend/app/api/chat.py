@@ -3,7 +3,7 @@ import re
 from time import perf_counter
 
 from backend.app.llm.ollama import generate_answer
-from backend.app.llm.prompts import build_policy_prompt
+from backend.app.llm.prompts import build_policy_prompt, build_hyde_prompt
 from backend.app.rag.retriever import search_policy
 
 
@@ -28,7 +28,14 @@ def ask_policy(question: str) -> dict:
     total_start = perf_counter()
 
     retrieval_start = perf_counter()
-    chunks = search_policy(question, top_k=5)
+    
+    try:
+        hyde_prompt = build_hyde_prompt(question)
+        hyde_doc = generate_answer(hyde_prompt)
+    except Exception:
+        hyde_doc = None
+        
+    chunks = search_policy(question, top_k=5, hyde_document=hyde_doc)
     retrieval_ms = round(
         (perf_counter() - retrieval_start) * 1000, 2
     )
@@ -99,7 +106,14 @@ def evaluate_policy(scenario: str) -> dict:
     total_start = perf_counter()
 
     retrieval_start = perf_counter()
-    chunks = search_policy(scenario, top_k=5)
+    
+    try:
+        hyde_prompt = build_hyde_prompt(scenario)
+        hyde_doc = generate_answer(hyde_prompt)
+    except Exception:
+        hyde_doc = None
+        
+    chunks = search_policy(scenario, top_k=5, hyde_document=hyde_doc)
     retrieval_ms = round(
         (perf_counter() - retrieval_start) * 1000, 2
     )

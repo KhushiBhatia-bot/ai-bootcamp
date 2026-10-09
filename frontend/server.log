@@ -1,0 +1,4 @@
+Watching for file changes with StatReloader
+Performing system checks...
+
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
