@@ -2,7 +2,10 @@
 import json
 from pathlib import Path
 
-from backend.app.rag.retriever import search_policy
+from backend.app.rag.retriever import (
+    search_policy,
+    search_policy_hybrid,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -41,14 +44,29 @@ def chunk_is_relevant(chunk, relevant_terms):
     )
 
 
-def evaluate_retrieval(dataset_path=DEFAULT_DATASET, top_k=5):
+def evaluate_retrieval(
+    dataset_path=DEFAULT_DATASET,
+    top_k=5,
+    search_mode="vector",
+):
     if top_k < 1:
         raise ValueError("top_k must be at least 1.")
+
+    if search_mode not in {"vector", "hybrid"}:
+        raise ValueError(
+            "search_mode must be 'vector' or 'hybrid'."
+        )
 
     dataset = load_dataset(dataset_path)
 
     if not dataset:
         raise ValueError("Evaluation dataset is empty.")
+
+    retriever = (
+        search_policy
+        if search_mode == "vector"
+        else search_policy_hybrid
+    )
 
     results = []
     total_hits = 0
@@ -56,7 +74,7 @@ def evaluate_retrieval(dataset_path=DEFAULT_DATASET, top_k=5):
     total_retrieved_chunks = 0
 
     for item in dataset:
-        chunks = search_policy(item["query"], top_k=top_k)
+        chunks = retriever(item["query"], top_k=top_k)
 
         relevant = [
             chunk
@@ -87,6 +105,7 @@ def evaluate_retrieval(dataset_path=DEFAULT_DATASET, top_k=5):
     query_count = len(dataset)
 
     return {
+        "search_mode": search_mode,
         "total_queries": query_count,
         "top_k": top_k,
         "hit_rate": round(total_hits / query_count, 4),

@@ -127,3 +127,47 @@ Policy evidence:
         "evidence": evidence,
         "retrieved_chunks": len(chunks),
     }
+
+def ask_policy(question: str) -> dict:
+    """Answer a policy question using retrieved policy evidence."""
+    question = question.strip()
+
+    if not question:
+        raise ValueError("Question cannot be empty.")
+
+    chunks = search_policy(question, top_k=5)
+
+    if not chunks:
+        return {
+            "question": question,
+            "answer": (
+                "I could not find sufficiently relevant policy evidence. "
+                "Please review the applicable policy manually."
+            ),
+            "sources": [],
+            "retrieved_chunks": 0,
+        }
+
+    prompt = build_policy_prompt(
+        question=question,
+        chunks=chunks,
+    )
+
+    answer = generate_answer(prompt)
+
+    sources = [
+        {
+            "policy": chunk.get("policy_name"),
+            "page": chunk.get("page"),
+            "text": chunk.get("text", "")[:300],
+        }
+        for chunk in chunks
+    ]
+
+    return {
+        "question": question,
+        "answer": answer,
+        "sources": sources,
+        "retrieved_chunks": len(chunks),
+    }
+
