@@ -1417,3 +1417,52 @@ a {
     cursor: pointer;
     font-weight: 700;
 }
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.metric-card {
+    padding: 20px;
+    border: 1px solid var(--border-color, #d8dee8);
+    border-radius: 12px;
+    background: var(--card-background, #ffffff);
+}
+
+.metric-card h3 {
+    margin-top: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.metric-card p {
+    margin-bottom: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 16px 0 32px;
+}
+
+.table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-wrapper th,
+.table-wrapper td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color, #d8dee8);
+    white-space: nowrap;
+}
+
+.table-wrapper th {
+    font-weight: 600;
+}

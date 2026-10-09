@@ -1,4 +1,42 @@
+
 from django.db import models
+
+
+class RequestMetric(models.Model):
+    STATUS_CHOICES = [
+        ("COMPLIANT", "Compliant"),
+        ("NON_COMPLIANT", "Non-compliant"),
+        ("NEEDS_REVIEW", "Needs review"),
+        ("ERROR", "Error"),
+    ]
+
+    scenario_preview = models.CharField(max_length=300, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="NEEDS_REVIEW",
+    )
+
+    retrieval_ms = models.FloatField(default=0)
+    generation_ms = models.FloatField(default=0)
+    total_ms = models.FloatField(default=0)
+
+    retrieved_chunks = models.PositiveIntegerField(default=0)
+    search_mode = models.CharField(max_length=20, default="vector")
+
+    success = models.BooleanField(default=True)
+    error_type = models.CharField(max_length=100, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return (
+            f"{self.status} — {self.total_ms} ms "
+            f"({self.created_at})"
+        )
 
 
 class PolicyEvaluation(models.Model):

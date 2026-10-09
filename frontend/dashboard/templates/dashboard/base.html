@@ -70,7 +70,10 @@
                     <span>▤</span>
                     Evaluation History
                 </a>
-
+                <a href="{% url 'monitoring' %}"
+                class="nav-item {% if active_page == 'monitoring' %}active{% endif %}">
+                    Performance Monitoring
+                </a>
 
             </div>
 

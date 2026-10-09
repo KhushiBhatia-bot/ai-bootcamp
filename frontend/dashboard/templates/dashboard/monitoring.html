@@ -1,0 +1,77 @@
+
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Performance Monitoring</h1>
+    <p>Operational metrics for PolicyGuard AI evaluations.</p>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <h3>Total Requests</h3>
+            <p>{{ summary.total_requests|default:0 }}</p>
+        </div>
+
+        <div class="metric-card">
+            <h3>Average Total Latency</h3>
+            <p>{{ summary.avg_total_ms|floatformat:2|default:"0" }} ms</p>
+        </div>
+
+        <div class="metric-card">
+            <h3>Average Retrieval</h3>
+            <p>{{ summary.avg_retrieval_ms|floatformat:2|default:"0" }} ms</p>
+        </div>
+
+        <div class="metric-card">
+            <h3>Average LLM Generation</h3>
+            <p>{{ summary.avg_generation_ms|floatformat:2|default:"0" }} ms</p>
+        </div>
+    </div>
+
+    <h2>Evaluation Status Distribution</h2>
+    {% if status_counts %}
+        <ul>
+        {% for item in status_counts %}
+            <li>{{ item.status }}: {{ item.count }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No evaluation metrics recorded yet.</p>
+    {% endif %}
+
+    <h2>Recent Requests</h2>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Search Mode</th>
+                    <th>Chunks</th>
+                    <th>Retrieval (ms)</th>
+                    <th>Generation (ms)</th>
+                    <th>Total (ms)</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in recent_metrics %}
+                <tr>
+                    <td>{{ item.created_at|date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.search_mode }}</td>
+                    <td>{{ item.retrieved_chunks }}</td>
+                    <td>{{ item.retrieval_ms|floatformat:2 }}</td>
+                    <td>{{ item.generation_ms|floatformat:2 }}</td>
+                    <td>{{ item.total_ms|floatformat:2 }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7">No requests have been recorded yet.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

@@ -7,10 +7,14 @@ from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect, render
 
 from .models import Policy
+from .models import PolicyEvaluation, RequestMetric
 from dashboard.models import PolicyEvaluation
 from django.shortcuts import render
 from django.db.models import Q
 from dashboard.models import PolicyEvaluation
+from django.db.models import Avg, Count
+from django.shortcuts import render
+from .models import RequestMetric
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -271,6 +275,16 @@ def evaluate_policy_view(request):
             )
 
         result = evaluate_policy(scenario)
+        RequestMetric.objects.create(
+            scenario_preview=scenario[:300],
+            status=result.get("status", "NEEDS_REVIEW"),
+            retrieval_ms=result.get("retrieval_ms", 0),
+            generation_ms=result.get("generation_ms", 0),
+            total_ms=result.get("total_ms", 0),
+            retrieved_chunks=result.get("retrieved_chunks", 0),
+            search_mode=result.get("search_mode", "vector"),
+            success=True,
+        )
         PolicyEvaluation.objects.create(
             scenario=scenario,
             status=result.get("status", "NEEDS_REVIEW"),
@@ -322,5 +336,34 @@ def evaluation_history(request):
     return render(
         request,
         "dashboard/evaluation_history.html",
+        context,
+    )
+
+def monitoring_dashboard(request):
+    metrics = RequestMetric.objects.all()
+
+    summary = metrics.aggregate(
+        total_requests=Count("id"),
+        avg_total_ms=Avg("total_ms"),
+        avg_retrieval_ms=Avg("retrieval_ms"),
+        avg_generation_ms=Avg("generation_ms"),
+    )
+
+    status_counts = (
+        metrics.values("status")
+        .annotate(count=Count("id"))
+        .order_by("status")
+    )
+
+    context = {
+        "active_page": "monitoring",
+        "summary": summary,
+        "status_counts": status_counts,
+        "recent_metrics": metrics[:20],
+    }
+
+    return render(
+        request,
+        "dashboard/monitoring.html",
         context,
     )
