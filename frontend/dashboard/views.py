@@ -7,6 +7,7 @@ from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect, render
 
 from .models import Policy
+from dashboard.models import PolicyEvaluation
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -267,6 +268,14 @@ def evaluate_policy_view(request):
             )
 
         result = evaluate_policy(scenario)
+        PolicyEvaluation.objects.create(
+            scenario=scenario,
+            status=result.get("status", "NEEDS_REVIEW"),
+            reason=result.get("reason", ""),
+            claimed_policy=result.get("claimed_policy", ""),
+            claimed_page=str(result.get("claimed_page") or ""),
+            evidence=result.get("evidence", []),
+        )
         return JsonResponse(result)
 
     except (ValueError, json.JSONDecodeError) as exc:
