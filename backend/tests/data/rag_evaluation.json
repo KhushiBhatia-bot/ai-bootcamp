@@ -1,0 +1,19 @@
+
+[
+  {
+    "id": "rag_001",
+    "query": "How should confidential customer data be handled?",
+    "relevant_terms": [
+      "confidential",
+      "data"
+    ]
+  },
+  {
+    "id": "rag_002",
+    "query": "An employee uploads confidential customer data to a personal cloud drive.",
+    "relevant_terms": [
+      "personal cloud"
+    ]
+  }
+]
+

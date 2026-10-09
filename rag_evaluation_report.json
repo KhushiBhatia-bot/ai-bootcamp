@@ -1,0 +1,38 @@
+{
+  "total_queries": 2,
+  "top_k": 5,
+  "hit_rate": 1.0,
+  "precision_at_k": 0.4,
+  "queries_with_hits": 2,
+  "total_retrieved_chunks": 10,
+  "results": [
+    {
+      "id": "rag_001",
+      "query": "How should confidential customer data be handled?",
+      "hit": true,
+      "retrieved_count": 5,
+      "relevant_count": 2,
+      "distances": [
+        272.315,
+        287.309,
+        317.736,
+        326.878,
+        343.917
+      ]
+    },
+    {
+      "id": "rag_002",
+      "query": "An employee uploads confidential customer data to a personal cloud drive.",
+      "hit": true,
+      "retrieved_count": 5,
+      "relevant_count": 2,
+      "distances": [
+        219.495,
+        247.395,
+        294.024,
+        296.733,
+        297.962
+      ]
+    }
+  ]
+}

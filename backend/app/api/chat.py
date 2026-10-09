@@ -1,3 +1,4 @@
+import re
 
 from backend.app.llm.ollama import generate_answer
 from backend.app.llm.prompts import build_policy_prompt
@@ -11,48 +12,7 @@ VALID_STATUSES = {
 }
 
 
-def ask_policy(question: str) -> dict:
-    """Answer a question using retrieved policy passages."""
-
-    question = question.strip()
-
-    if not question:
-        raise ValueError("Question cannot be empty.")
-
-    chunks = search_policy(question, top_k=5)
-
-    prompt = build_policy_prompt(
-        question=question,
-        chunks=chunks,
-    )
-
-    answer = generate_answer(prompt)
-
-    sources = [
-        {
-            "policy": chunk.get("policy_name"),
-            "page": chunk.get("page"),
-            "text": chunk.get("text", "")[:300],
-        }
-        for chunk in chunks
-    ]
-
-    return {
-        "question": question,
-        "answer": answer,
-        "sources": sources,
-        "retrieved_chunks": len(chunks),
-    }
-
-
 def evaluate_policy(scenario: str) -> dict:
-    """
-    Evaluate a scenario against retrieved policy evidence.
-
-    The LLM produces a structured decision, but its output is
-    treated as a recommendation requiring evidence-based review.
-    """
-
     scenario = scenario.strip()
 
     if not scenario:
@@ -60,6 +20,7 @@ def evaluate_policy(scenario: str) -> dict:
 
     chunks = search_policy(scenario, top_k=5)
 
+    # Do not make a decision without relevant policy evidence.
     if not chunks:
         return {
             "scenario": scenario,
@@ -74,82 +35,95 @@ def evaluate_policy(scenario: str) -> dict:
             "retrieved_chunks": 0,
         }
 
-    evidence_text = "\n\n".join(
-        (
-            f"Policy: {chunk.get('policy_name')}\n"
-            f"Page: {chunk.get('page')}\n"
-            f"Text: {chunk.get('text', '')}"
-        )
-        for chunk in chunks
-    )
-
     prompt = f"""
-You are PolicyGuard AI, a policy compliance assessment assistant.
+You are a policy compliance evaluation assistant.
 
-Assess the scenario using ONLY the policy evidence supplied below.
+Evaluate the scenario ONLY against the supplied policy evidence.
+Do not invent policy rules, section numbers, or page numbers.
+If the evidence is insufficient or ambiguous, choose NEEDS_REVIEW.
 
-SCENARIO:
+Return exactly these fields:
+STATUS: COMPLIANT, NON_COMPLIANT, or NEEDS_REVIEW
+REASON: A brief explanation grounded in the evidence
+POLICY: The policy name supported by the evidence, or Unknown
+PAGE: The page number supported by the evidence, or Unknown
+
+Scenario:
 {scenario}
 
-POLICY EVIDENCE:
-{evidence_text}
-
-Return exactly these four fields, each on its own line:
-STATUS: COMPLIANT, NON_COMPLIANT, or NEEDS_REVIEW
-REASON: A concise explanation based on the evidence
-POLICY: The policy name that supports the assessment
-PAGE: The page number, or UNKNOWN if unavailable
-
-Rules:
-- COMPLIANT means the evidence supports compliance.
-- NON_COMPLIANT means the evidence directly supports a violation.
-- NEEDS_REVIEW means evidence is missing, ambiguous, or insufficient.
-- Do not invent policy requirements or citations.
-- If the scenario lacks necessary details, choose NEEDS_REVIEW.
-- Do not treat a missing policy statement as proof of compliance.
-- Keep the reason concise.
+Policy evidence:
+{chr(10).join(
+    f"Policy: {chunk.get('policy_name') or 'Unknown'} | "
+    f"Page: {chunk.get('page') or 'Unknown'} | "
+    f"Text: {chunk.get('text', '')}"
+    for chunk in chunks
+)}
 """
 
     answer = generate_answer(prompt)
 
-    # Parse the model's simple structured response.
-    fields = {}
-
-    for line in answer.splitlines():
-        key, separator, value = line.partition(":")
-        if separator:
-            fields[key.strip().upper()] = value.strip()
-
-    status = fields.get("STATUS", "").upper()
-
-    if status not in VALID_STATUSES:
-        status = "NEEDS_REVIEW"
-
-    reason = fields.get(
-        "REASON",
-        "The model did not provide a clear assessment. Manual review is needed.",
+    status_match = re.search(
+        r"^\s*STATUS:\s*(COMPLIANT|NON_COMPLIANT|NEEDS_REVIEW)\b",
+        answer,
+        re.IGNORECASE | re.MULTILINE,
     )
 
-    # Return retrieved evidence as well as the model's claimed citation.
-    sources = [
-    {
-        "policy": chunk.get("policy_name"),
-        "page": chunk.get("page"),
-        "text": chunk.get("text", "")[:300],
-        "similarity_score": round(
-            float(chunk.get("similarity_score", 0.0)), 3
-        ),
-        "distance": round(float(chunk.get("distance", 0.0)), 3),
-    }
-    for chunk in chunks
-]
+    reason_match = re.search(
+        r"^\s*REASON:\s*(.*)$",
+        answer,
+        re.IGNORECASE | re.MULTILINE,
+    )
+
+    policy_match = re.search(
+        r"^\s*POLICY:\s*(.*)$",
+        answer,
+        re.IGNORECASE | re.MULTILINE,
+    )
+
+    page_match = re.search(
+        r"^\s*PAGE:\s*(.*)$",
+        answer,
+        re.IGNORECASE | re.MULTILINE,
+    )
+
+    status = (
+        status_match.group(1).upper()
+        if status_match
+        else "NEEDS_REVIEW"
+    )
+
+    reason = (
+        reason_match.group(1).strip()
+        if reason_match
+        else "The model response could not be validated. Manual review is required."
+    )
+
+    # Include retrieved evidence so users can inspect the basis
+    # for the assessment instead of relying only on the model's answer.
+    evidence = [
+        {
+            "policy": chunk.get("policy_name") or "Unknown",
+            "page": chunk.get("page"),
+            "text": chunk.get("text", "")[:500],
+            "distance": chunk.get("distance"),
+        }
+        for chunk in chunks
+    ]
 
     return {
         "scenario": scenario,
         "status": status,
         "reason": reason,
-        "claimed_policy": fields.get("POLICY", "UNKNOWN"),
-        "claimed_page": fields.get("PAGE", "UNKNOWN"),
-        "evidence": sources,
+        "claimed_policy": (
+            policy_match.group(1).strip()
+            if policy_match
+            else ""
+        ),
+        "claimed_page": (
+            page_match.group(1).strip()
+            if page_match
+            else ""
+        ),
+        "evidence": evidence,
         "retrieved_chunks": len(chunks),
     }
